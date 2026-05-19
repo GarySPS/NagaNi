@@ -3,13 +3,17 @@
 import { createClient } from '@supabase/supabase-js';
 import { executeSpin } from './math/rngEngine';
 
-// Create a backend-only admin client that bypasses RLS for authoritative game math
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// Helper function to safely instantiate the admin client inside the actions
+// This prevents Next.js from throwing the "found object" error on the server
+function getAdminClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
 
 export async function playSpin(userId: string, betAmount: number, roomName: string = "Golden Buffalo") {
+  const supabaseAdmin = getAdminClient();
   const result = await executeSpin(betAmount, roomName);
   const vaultAddition = betAmount * 0.10;
 
@@ -34,6 +38,7 @@ export async function playSpin(userId: string, betAmount: number, roomName: stri
 }
 
 export async function getWallet(userId: string) {
+  const supabaseAdmin = getAdminClient();
   const { data, error } = await supabaseAdmin
     .from('wallets')
     .select('playable_balance, locked_vault')
@@ -49,6 +54,7 @@ export async function getWallet(userId: string) {
 }
 
 export async function getDashboardStats(userId: string) {
+  const supabaseAdmin = getAdminClient();
   const { data: logs, error } = await supabaseAdmin
     .from('spin_logs')
     .select('bet_amount, win_amount, is_near_miss, room_name, created_at')
@@ -97,12 +103,14 @@ export async function getDashboardStats(userId: string) {
 }
 
 export async function triggerMidnightUnlock() {
+  const supabaseAdmin = getAdminClient();
   const { error } = await supabaseAdmin.rpc('process_daily_bonus_unlock');
   if (error) console.error("Midnight unlock error:", error);
   return !error;
 }
 
 export async function fundWallet(userId: string, amount: number) {
+  const supabaseAdmin = getAdminClient();
   const { error } = await supabaseAdmin.rpc('admin_fund_wallet', { 
     target_user_id: userId, 
     amount: amount 
