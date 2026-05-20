@@ -1,3 +1,5 @@
+//app/components>nagani>SlotReel.tsx
+
 "use client";
 
 import { motion } from "framer-motion";

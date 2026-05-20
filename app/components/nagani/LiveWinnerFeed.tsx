@@ -1,3 +1,6 @@
+
+//app/components>nagani>LiveWinnerFeed.tsx
+
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
@@ -53,7 +56,9 @@ function buildFeedItem(spin: LiveSpinRow): FeedItem | null {
   return {
     id: String(
       spin.id ??
-        `${spin.user_id ?? "anon"}-${spin.created_at ?? Date.now()}-${Math.random()}`
+        `${spin.user_id ?? "anon"}-${
+          spin.created_at ?? Date.now()
+        }-${Math.random()}`
     ),
     player: maskPlayerId(spin.user_id),
     roomName: spin.room_name || "Nagani Room",
@@ -73,7 +78,7 @@ export default function LiveWinnerFeed() {
 
       if (!item) return;
 
-      setItems((current) => [item, ...current].slice(0, 3));
+      setItems((current) => [item, ...current].slice(0, 2));
 
       const timer = window.setTimeout(() => {
         setItems((current) => current.filter((entry) => entry.id !== item.id));
@@ -99,85 +104,91 @@ export default function LiveWinnerFeed() {
 
     return () => {
       supabase.removeChannel(channel);
-
       timers.current.forEach((timer) => window.clearTimeout(timer));
       timers.current = [];
     };
   }, []);
 
   return (
-    <div className="pointer-events-none fixed left-4 right-4 top-4 z-40 space-y-2 sm:left-auto sm:w-[360px]">
-      <AnimatePresence initial={false}>
-        {items.map((item) => {
-          const multiplier =
-            item.betAmount > 0 ? item.winAmount / item.betAmount : 0;
+    <div className="pointer-events-none fixed inset-x-0 top-3 z-40 flex justify-center px-4">
+      <div className="w-full max-w-md space-y-2">
+        <AnimatePresence initial={false}>
+          {items.map((item) => {
+            const multiplier =
+              item.betAmount > 0 ? item.winAmount / item.betAmount : 0;
 
-          return (
-            <motion.div
-              key={item.id}
-              initial={{ opacity: 0, y: -18, x: 24, scale: 0.96 }}
-              animate={{ opacity: 1, y: 0, x: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -12, x: 18, scale: 0.96 }}
-              transition={{ type: "spring", stiffness: 260, damping: 22 }}
-              className={`pointer-events-auto overflow-hidden rounded-[1.35rem] border p-3 backdrop-blur-2xl ${
-                item.isMassive
-                  ? "border-[#FFD700]/50 bg-black/60 shadow-[0_0_38px_rgba(255,215,0,0.24),0_0_50px_rgba(139,0,0,0.22)]"
-                  : "border-white/10 bg-black/40 shadow-[0_0_24px_rgba(255,255,255,0.06)]"
-              }`}
-            >
-              <div
-                className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent ${
-                  item.isMassive ? "via-[#FFD700]/80" : "via-white/30"
-                } to-transparent`}
-              />
-
-              <div className="flex items-start gap-3">
+            return (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, y: -18, scale: 0.96 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.96 }}
+                transition={{ type: "spring", stiffness: 260, damping: 24 }}
+                className={`pointer-events-auto relative overflow-hidden rounded-[1.4rem] border px-3 py-3 backdrop-blur-2xl ${
+                  item.isMassive
+                    ? "border-[#FFD700]/50 bg-[#1b0707]/80 shadow-[0_0_34px_rgba(255,215,0,0.22),0_0_44px_rgba(139,0,0,0.22)]"
+                    : "border-white/10 bg-black/65 shadow-[0_0_24px_rgba(255,255,255,0.055)]"
+                }`}
+              >
                 <div
-                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border ${
-                    item.isMassive
-                      ? "border-[#FFD700]/35 bg-[#FFD700]/15 text-[#FFD700]"
-                      : "border-white/10 bg-white/[0.06] text-white/70"
-                  }`}
-                >
-                  {item.isMassive ? (
-                    <Flame className="h-5 w-5" />
-                  ) : (
-                    <Trophy className="h-5 w-5" />
-                  )}
-                </div>
+                  className={`pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent ${
+                    item.isMassive ? "via-[#FFD700]/80" : "via-white/25"
+                  } to-transparent`}
+                />
 
-                <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-3">
                   <div
-                    className={`font-mono text-[9px] font-black uppercase tracking-[0.2em] ${
-                      item.isMassive ? "text-[#FFD700]" : "text-white/45"
+                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border ${
+                      item.isMassive
+                        ? "border-[#FFD700]/35 bg-[#FFD700]/15 text-[#FFD700]"
+                        : "border-white/10 bg-white/[0.06] text-white/70"
                     }`}
                   >
-                    {item.isMassive ? "Massive Win" : "Live Winner"}
+                    {item.isMassive ? (
+                      <Flame className="h-5 w-5" />
+                    ) : (
+                      <Trophy className="h-5 w-5" />
+                    )}
                   </div>
 
-                  <p className="mt-1 text-sm font-bold leading-5 text-white/85">
-                    👤 {item.player} just won{" "}
-                    <span
-                      className={
-                        item.isMassive ? "text-[#FFD700]" : "text-white"
-                      }
+                  <div className="min-w-0 flex-1">
+                    <div
+                      className={`font-mono text-[8px] font-black uppercase tracking-[0.2em] ${
+                        item.isMassive ? "text-[#FFD700]" : "text-white/40"
+                      }`}
                     >
-                      {formatMoney(item.winAmount)}
-                    </span>{" "}
-                    in {item.roomName}!
-                  </p>
-
-                  {multiplier > 0 && (
-                    <div className="mt-2 inline-flex rounded-full border border-white/10 bg-white/[0.055] px-2.5 py-1 font-mono text-[9px] font-black uppercase tracking-[0.16em] text-white/45">
-                      {multiplier.toFixed(1)}x payout
+                      {item.isMassive ? "Massive Win" : "Live Winner"}
                     </div>
-                  )}
+
+                    <p className="mt-0.5 truncate text-sm font-black text-white/85">
+                      {item.player} won{" "}
+                      <span
+                        className={
+                          item.isMassive ? "text-[#FFD700]" : "text-white"
+                        }
+                      >
+                        {formatMoney(item.winAmount)}
+                      </span>
+                    </p>
+
+                    <div className="mt-1 flex items-center gap-2">
+                      <span className="truncate font-mono text-[9px] font-black uppercase tracking-[0.14em] text-white/35">
+                        {item.roomName}
+                      </span>
+
+                      {multiplier > 0 && (
+                        <span className="rounded-full border border-white/10 bg-white/[0.055] px-2 py-0.5 font-mono text-[8px] font-black uppercase tracking-[0.12em] text-white/45">
+                          {multiplier.toFixed(1)}x
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          );
-        })}
-      </AnimatePresence>
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

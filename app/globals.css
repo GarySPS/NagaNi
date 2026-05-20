@@ -1,26 +1,137 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #070202;
+  --foreground: #fff7d6;
+
+  --nagani-obsidian: #070202;
+  --nagani-black-red: #130404;
+  --nagani-lacquer: #250707;
+  --nagani-dragon-red: #7a0b0b;
+  --nagani-fire-red: #e11d1d;
+  --nagani-ember: #f97316;
+  --nagani-gold: #facc15;
+  --nagani-deep-gold: #b7791f;
+  --nagani-jade: #22c55e;
+  --nagani-cream: #fff7d6;
+  --nagani-muted: #c9bca0;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
+  --color-nagani-obsidian: var(--nagani-obsidian);
+  --color-nagani-black-red: var(--nagani-black-red);
+  --color-nagani-lacquer: var(--nagani-lacquer);
+  --color-nagani-dragon-red: var(--nagani-dragon-red);
+  --color-nagani-fire-red: var(--nagani-fire-red);
+  --color-nagani-ember: var(--nagani-ember);
+  --color-nagani-gold: var(--nagani-gold);
+  --color-nagani-deep-gold: var(--nagani-deep-gold);
+  --color-nagani-jade: var(--nagani-jade);
+  --color-nagani-cream: var(--nagani-cream);
+  --color-nagani-muted: var(--nagani-muted);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  background: var(--nagani-obsidian);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100%;
+  margin: 0;
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at 50% -10%, rgba(122, 11, 11, 0.55), transparent 38rem),
+    radial-gradient(circle at 95% 85%, rgba(250, 204, 21, 0.1), transparent 28rem),
+    linear-gradient(180deg, #070202 0%, #130404 46%, #050202 100%);
+  color: var(--nagani-cream);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: rgba(250, 204, 21, 0.32);
+  color: var(--nagani-cream);
+}
+
+/* Nagani shared visual system */
+
+.nagani-page {
+  min-height: 100dvh;
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at 50% -12rem, rgba(122, 11, 11, 0.58), transparent 32rem),
+    radial-gradient(circle at 100% 88%, rgba(250, 204, 21, 0.1), transparent 28rem),
+    linear-gradient(180deg, #070202 0%, #130404 48%, #050202 100%);
+  color: var(--nagani-cream);
+}
+
+.nagani-grid-overlay {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+.nagani-panel {
+  border: 1px solid rgba(250, 204, 21, 0.16);
+  background:
+    linear-gradient(135deg, rgba(122, 11, 11, 0.32), rgba(255, 255, 255, 0.045), rgba(0, 0, 0, 0.58));
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.48);
+  backdrop-filter: blur(20px);
+}
+
+.nagani-red-panel {
+  border: 1px solid rgba(248, 113, 113, 0.22);
+  background:
+    radial-gradient(circle at 18% 0%, rgba(250, 204, 21, 0.12), transparent 18rem),
+    linear-gradient(135deg, rgba(127, 29, 29, 0.44), rgba(69, 10, 10, 0.34), rgba(0, 0, 0, 0.72));
+  box-shadow: 0 0 60px rgba(239, 68, 68, 0.16);
+}
+
+.nagani-gold-button {
+  border: 1px solid rgba(250, 204, 21, 0.45);
+  background: linear-gradient(135deg, #facc15 0%, #f59e0b 48%, #7a0b0b 100%);
+  color: #080202;
+  box-shadow:
+    0 0 28px rgba(250, 204, 21, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.nagani-cabinet {
+  border: 1px solid rgba(250, 204, 21, 0.28);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(250, 204, 21, 0.18), transparent 18rem),
+    linear-gradient(145deg, rgba(127, 29, 29, 0.58), rgba(12, 4, 4, 0.88) 58%, rgba(0, 0, 0, 0.94));
+  box-shadow:
+    0 0 55px rgba(250, 204, 21, 0.13),
+    0 0 75px rgba(239, 68, 68, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.09);
+}
+
+.nagani-bottom-nav {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(25, 6, 7, 0.92);
+  box-shadow: 0 -18px 60px rgba(0, 0, 0, 0.62);
+  backdrop-filter: blur(24px);
 }

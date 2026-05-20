@@ -27,26 +27,29 @@ export const ROOM_PROFILES: Record<string, VolatilityProfile> = {
   }
 };
 
-// Updated executeSpin to accept a room name
-export async function executeSpin(betAmount: number, roomName: string = "Golden Buffalo") {
-  const profile = ROOM_PROFILES[roomName];
-  const roll = Math.random() * 100;
-  
-  if (roll <= profile.hitRate) {
-    const symbols = Object.keys(profile.multipliers);
-    const winSymbol = symbols[Math.floor(Math.random() * symbols.length)];
-    return {
-      isWin: true,
-      payout: betAmount * profile.multipliers[winSymbol],
-      isNearMiss: false,
-      finalReels: [winSymbol, winSymbol, winSymbol]
-    };
-  }
+// Updated executeSpin to accept a room name AND an rtpModifier
+export async function executeSpin(betAmount: number, roomName: string = "Golden Buffalo", rtpModifier: number = 1.0) {
+  const profile = ROOM_PROFILES[roomName] || ROOM_PROFILES["Golden Buffalo"];
+  const roll = Math.random() * 100;
+  
+  // Apply the God-Mode RTP modifier to the base hit rate
+  const adjustedHitRate = profile.hitRate * rtpModifier;
 
-  const nearMissRoll = Math.random() * 100;
-  if (nearMissRoll <= profile.nearMissRate) {
-    return { isWin: false, payout: 0, isNearMiss: true, finalReels: ['dragon', 'dragon', 'lotus'] };
-  }
+  if (roll <= adjustedHitRate) {
+    const symbols = Object.keys(profile.multipliers);
+    const winSymbol = symbols[Math.floor(Math.random() * symbols.length)];
+    return {
+      isWin: true,
+      payout: betAmount * profile.multipliers[winSymbol],
+      isNearMiss: false,
+      finalReels: [winSymbol, winSymbol, winSymbol]
+    };
+  }
 
-  return { isWin: false, payout: 0, isNearMiss: false, finalReels: ['koi', 'tiger', 'coin'] };
+  const nearMissRoll = Math.random() * 100;
+  if (nearMissRoll <= profile.nearMissRate) {
+    return { isWin: false, payout: 0, isNearMiss: true, finalReels: ['dragon', 'dragon', 'lotus'] };
+  }
+
+  return { isWin: false, payout: 0, isNearMiss: false, finalReels: ['koi', 'tiger', 'coin'] };
 }
