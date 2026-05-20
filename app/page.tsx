@@ -14,15 +14,26 @@ import {
   Coins,
   Flame,
   Home,
-  RotateCw,
-  Smartphone,
   Trophy,
   UserCircle,
   Vault,
 } from "lucide-react";
-import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import DragonSlotBoard from "./components/nagani/DragonSlotBoard";
 import type { ReelSymbolKey } from "./components/nagani/SlotReel";
+import GameSessionAsset from "./components/nagani/game/GameSessionAsset";
+import GoldRain from "./components/nagani/game/GoldRain";
+import NaganiPageLoading from "./components/nagani/game/NaganiPageLoading";
+import NaganiLaunchOverlay from "./components/nagani/game/NaganiLaunchOverlay";
+import RotatePhoneWelcome from "./components/nagani/game/RotatePhoneWelcome";
+import WinCelebrationOverlay from "./components/nagani/game/WinCelebrationOverlay";
+import {
+  BET_AMOUNT,
+  ROTATE_HINT_STORAGE_KEY,
+  formatCredits,
+  getRoomSkin,
+  resolveRoomName,
+} from "./components/nagani/game/naganiGameConfig";
 
 type SpinPayload = {
   isWin: boolean;
@@ -31,389 +42,11 @@ type SpinPayload = {
   finalReels: ReelSymbolKey[];
 };
 
-const BET_AMOUNT = 25;
-const ROTATE_HINT_STORAGE_KEY = "nagani_rotate_hint_do_not_show_v1";
-
-type RoomName = "Green Valley" | "Golden Buffalo" | "Dragon's Peak";
-
-function resolveRoomName(value: string | null): RoomName {
-  if (
-    value === "Green Valley" ||
-    value === "Golden Buffalo" ||
-    value === "Dragon's Peak"
-  ) {
-    return value;
-  }
-
-  return "Golden Buffalo";
-}
-
-function getRoomSkin(roomName: RoomName) {
-  if (roomName === "Green Valley") {
-    return {
-      label: "Green Valley",
-      subtitle: "Entry Room",
-      mood: "Low volatility",
-      badge: "border-emerald-300/30 bg-emerald-400/10 text-emerald-100",
-      cabinetGlow: "shadow-[0_0_80px_rgba(16,185,129,0.13)]",
-      ambientGlow: "bg-emerald-500/20",
-    };
-  }
-
-  if (roomName === "Dragon's Peak") {
-    return {
-      label: "Dragon's Peak",
-      subtitle: "Fire Room",
-      mood: "High volatility",
-      badge: "border-red-300/30 bg-red-500/10 text-red-100",
-      cabinetGlow: "shadow-[0_0_90px_rgba(239,68,68,0.22)]",
-      ambientGlow: "bg-red-600/30",
-    };
-  }
-
-  return {
-    label: "Golden Buffalo",
-    subtitle: "Classic Room",
-    mood: "Medium volatility",
-    badge: "border-[#FFD700]/35 bg-[#FFD700]/10 text-[#FFD700]",
-    cabinetGlow: "shadow-[0_0_90px_rgba(250,204,21,0.16)]",
-    ambientGlow: "bg-[#FFD700]/16",
-  };
-}
-
-function formatCredits(value: number) {
-  return value.toLocaleString("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-}
-
-function GoldRain({ active }: { active: boolean }) {
-  const particles = useMemo(
-    () =>
-      Array.from({ length: 52 }, (_, index) => ({
-        id: index,
-        left: `${Math.random() * 100}%`,
-        delay: Math.random() * 0.75,
-        duration: 1.15 + Math.random() * 1.55,
-        size: 4 + Math.random() * 8,
-      })),
-    [active]
-  );
-
-  return (
-    <AnimatePresence>
-      {active && (
-        <motion.div
-          className="pointer-events-none fixed inset-0 z-[70] overflow-hidden"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        >
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,215,0,0.24),transparent_56%)]" />
-
-          {particles.map((particle) => (
-            <motion.span
-              key={particle.id}
-              className="absolute top-[-32px] rounded-full bg-[#FFD700] shadow-[0_0_18px_rgba(255,215,0,0.95)]"
-              style={{
-                left: particle.left,
-                width: particle.size,
-                height: particle.size,
-              }}
-              initial={{ y: -60, opacity: 0, rotate: 0 }}
-              animate={{ y: "110vh", opacity: [0, 1, 1, 0], rotate: 420 }}
-              transition={{
-                delay: particle.delay,
-                duration: particle.duration,
-                ease: "easeIn",
-              }}
-            />
-          ))}
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-}
-
 export default function NaganiPage() {
   return (
     <Suspense fallback={<NaganiPageLoading />}>
       <NaganiGame />
     </Suspense>
-  );
-}
-
-function NaganiPageLoading() {
-  return (
-    <main className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-[#040000] px-6 text-white">
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute left-1/2 top-1/2 h-[26rem] w-[26rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-red-700/25 blur-[110px]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(250,204,21,0.12),transparent_42%)]" />
-      </div>
-
-      <div className="relative w-full max-w-sm rounded-[2.25rem] border border-[#FFD700]/20 bg-black/45 p-8 text-center shadow-[0_0_90px_rgba(250,204,21,0.12)] backdrop-blur-2xl">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[1.4rem] border border-[#FFD700]/30 bg-[#FFD700]/10 shadow-[0_0_40px_rgba(250,204,21,0.22)]">
-          <Flame className="h-8 w-8 text-[#FFD700]" />
-        </div>
-
-        <div className="mt-5 font-mono text-[10px] font-black uppercase tracking-[0.34em] text-[#FFD700]/70">
-          Loading Session
-        </div>
-
-        <h1 className="mt-2 text-4xl font-black tracking-tight text-white">
-          NAGANI
-        </h1>
-
-        <div className="mt-6 h-2 overflow-hidden rounded-full border border-[#FFD700]/20 bg-black/70">
-          <motion.div
-            className="h-full rounded-full bg-gradient-to-r from-red-700 via-[#FFD700] to-yellow-200"
-            initial={{ width: "0%" }}
-            animate={{ width: "100%" }}
-            transition={{ duration: 1.15, ease: "easeInOut" }}
-          />
-        </div>
-      </div>
-    </main>
-  );
-}
-
-function NaganiLaunchOverlay({ roomName }: { roomName: RoomName }) {
-  return (
-    <motion.div
-      className="fixed inset-0 z-[90] flex items-center justify-center overflow-hidden bg-[#040000] px-6 text-white"
-      initial={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.55, ease: "easeOut" }}
-    >
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute left-1/2 top-1/2 h-[34rem] w-[34rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-red-700/28 blur-[125px]" />
-        <div className="absolute bottom-[-14rem] left-1/2 h-[28rem] w-[44rem] -translate-x-1/2 rounded-full bg-[#FFD700]/10 blur-[100px]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_28%,rgba(250,204,21,0.15),transparent_44%)]" />
-      </div>
-
-      <motion.div
-        className="relative w-full max-w-md text-center"
-        initial={{ y: 18, scale: 0.96, opacity: 0 }}
-        animate={{ y: 0, scale: 1, opacity: 1 }}
-        transition={{ duration: 0.45, ease: "easeOut" }}
-      >
-        <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-[2rem] border border-[#FFD700]/35 bg-gradient-to-b from-red-900/80 to-black shadow-[0_0_70px_rgba(250,204,21,0.18)]">
-          <Flame className="h-12 w-12 text-[#FFD700]" />
-        </div>
-
-        <div className="mt-6 font-mono text-[10px] font-black uppercase tracking-[0.38em] text-[#FFD700]/75">
-          နဂါးနီ · Live Casino
-        </div>
-
-        <h1 className="mt-2 bg-gradient-to-r from-white via-[#FFD700] to-red-500 bg-clip-text text-5xl font-black tracking-tight text-transparent">
-          NAGANI
-        </h1>
-
-        <div className="mt-3 font-mono text-[10px] font-black uppercase tracking-[0.24em] text-white/38">
-          {roomName} Session Launch
-        </div>
-
-        <div className="mx-auto mt-8 h-2 max-w-xs overflow-hidden rounded-full border border-[#FFD700]/20 bg-black/75">
-          <motion.div
-            className="h-full rounded-full bg-gradient-to-r from-red-700 via-[#FFD700] to-yellow-100"
-            initial={{ width: "0%" }}
-            animate={{ width: "100%" }}
-            transition={{ duration: 1.22, ease: "easeInOut" }}
-          />
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-}
-
-function RotatePhoneWelcome({
-  onClose,
-}: {
-  onClose: (doNotShowAgain: boolean) => void;
-}) {
-  const [doNotShowAgain, setDoNotShowAgain] = useState(false);
-
-  return (
-    <motion.div
-      className="fixed inset-0 z-[80] flex items-center justify-center bg-black/72 px-5 text-white backdrop-blur-xl"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.28, ease: "easeOut" }}
-    >
-      <motion.div
-        className="relative w-full max-w-sm overflow-hidden rounded-[2rem] border border-[#FFD700]/25 bg-gradient-to-b from-[#260303]/96 via-[#0b0101]/98 to-black p-5 text-center shadow-[0_0_90px_rgba(250,204,21,0.16)]"
-        initial={{ y: 18, scale: 0.96, opacity: 0 }}
-        animate={{ y: 0, scale: 1, opacity: 1 }}
-        exit={{ y: 10, scale: 0.98, opacity: 0 }}
-        transition={{ duration: 0.32, ease: "easeOut" }}
-      >
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(250,204,21,0.16),transparent_42%)]" />
-
-        <div className="relative mx-auto flex h-16 w-16 items-center justify-center rounded-[1.35rem] border border-[#FFD700]/30 bg-[#FFD700]/10 shadow-[0_0_38px_rgba(250,204,21,0.2)]">
-          <Smartphone className="h-8 w-8 text-[#FFD700]" />
-        </div>
-
-        <div className="relative mt-4 font-mono text-[9px] font-black uppercase tracking-[0.28em] text-[#FFD700]/70">
-          Best Experience
-        </div>
-
-        <h2 className="relative mt-2 text-2xl font-black leading-tight text-white">
-          Rotate Your Phone
-        </h2>
-
-        <p className="relative mt-3 text-sm font-semibold leading-6 text-white/55">
-          Nagani is built like a casino game cabinet. Rotate your phone sideways
-          for a wider reel view and better spin experience.
-        </p>
-
-        <div className="relative mt-4 flex items-center justify-center gap-3 rounded-[1.35rem] border border-white/10 bg-white/[0.045] px-4 py-3">
-          <Smartphone className="h-6 w-6 text-white/45" />
-          <RotateCw className="h-5 w-5 text-[#FFD700]" />
-          <div className="h-6 w-10 rounded-lg border border-[#FFD700]/40 bg-[#FFD700]/10" />
-        </div>
-
-        <label className="relative mt-4 flex cursor-pointer items-center justify-center gap-2 rounded-[1.15rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-xs font-bold text-white/55">
-          <input
-            type="checkbox"
-            checked={doNotShowAgain}
-            onChange={(event) => setDoNotShowAgain(event.target.checked)}
-            className="h-4 w-4 accent-[#FFD700]"
-          />
-          Do not show again
-        </label>
-
-        <button
-          type="button"
-          onClick={() => onClose(doNotShowAgain)}
-          className="nagani-gold-button relative mt-5 w-full rounded-[1.45rem] px-5 py-3 font-black uppercase tracking-[0.22em] active:scale-[0.98]"
-        >
-          Continue
-        </button>
-
-        <p className="relative mt-3 text-[11px] font-semibold leading-5 text-white/32">
-          Portrait mode still works. Landscape is recommended for full cabinet
-          size.
-        </p>
-      </motion.div>
-    </motion.div>
-  );
-}
-
-function GameSessionAsset({
-  src,
-  alt,
-  className,
-}: {
-  src: string;
-  alt: string;
-  className: string;
-}) {
-  const [failed, setFailed] = useState(false);
-
-  if (failed) {
-    return null;
-  }
-
-  return (
-    <img
-      src={src}
-      alt={alt}
-      className={className}
-      draggable={false}
-      onError={() => setFailed(true)}
-    />
-  );
-}
-
-function WinCelebrationOverlay({
-  active,
-  result,
-}: {
-  active: boolean;
-  result: SpinPayload | null;
-}) {
-  if (!active || !result?.isWin) {
-    return null;
-  }
-
-  const isBigWin = result.payout >= BET_AMOUNT * 50;
-  const title = isBigWin ? "BIG WIN" : "DRAGON WIN";
-  const subtitle = isBigWin
-    ? "Fire jackpot energy unlocked"
-    : "Winning line confirmed";
-
-  return (
-    <motion.div
-      className="pointer-events-none fixed inset-0 z-[75] flex items-center justify-center px-5 text-white"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.25, ease: "easeOut" }}
-    >
-      <div className="absolute inset-0 bg-black/38 backdrop-blur-[2px]" />
-
-      <GameSessionAsset
-        src="/assets/nagani/effects/fire-glow.webp"
-        alt="Nagani win glow"
-        className="absolute left-1/2 top-1/2 h-[34rem] w-[34rem] -translate-x-1/2 -translate-y-1/2 object-contain opacity-55"
-      />
-
-      <motion.div
-        className={`relative w-full max-w-sm overflow-hidden rounded-[2rem] border p-6 text-center shadow-[0_0_90px_rgba(250,204,21,0.24)] ${
-          isBigWin
-            ? "border-[#FFD700]/55 bg-gradient-to-b from-[#5a0909]/96 via-[#160202]/96 to-black"
-            : "border-[#FFD700]/35 bg-gradient-to-b from-[#2a0505]/96 via-[#0b0101]/96 to-black"
-        }`}
-        initial={{ y: 24, scale: 0.86, opacity: 0 }}
-        animate={{ y: 0, scale: 1, opacity: 1 }}
-        exit={{ y: 10, scale: 0.94, opacity: 0 }}
-        transition={{ type: "spring", stiffness: 210, damping: 18 }}
-      >
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(250,204,21,0.22),transparent_48%)]" />
-        <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-[#FFD700] to-transparent" />
-
-        <motion.div
-          className="relative mx-auto flex h-20 w-20 items-center justify-center rounded-[1.75rem] border border-[#FFD700]/35 bg-[#FFD700]/10 text-[#FFD700] shadow-[0_0_50px_rgba(250,204,21,0.28)]"
-          animate={{
-            scale: [1, 1.08, 1],
-            rotate: isBigWin ? [0, -3, 3, 0] : [0, 0],
-          }}
-          transition={{ duration: 0.75, repeat: 2 }}
-        >
-          <Flame className="h-10 w-10" />
-        </motion.div>
-
-        <div className="relative mt-5 font-mono text-[9px] font-black uppercase tracking-[0.32em] text-[#FFD700]/75">
-          {subtitle}
-        </div>
-
-        <motion.h2
-          className="relative mt-2 bg-gradient-to-r from-white via-[#FFD700] to-red-500 bg-clip-text text-5xl font-black tracking-tight text-transparent"
-          animate={{
-            textShadow: [
-              "0 0 12px rgba(250,204,21,0.25)",
-              "0 0 30px rgba(250,204,21,0.55)",
-              "0 0 12px rgba(250,204,21,0.25)",
-            ],
-          }}
-          transition={{ duration: 0.9, repeat: 2 }}
-        >
-          {title}
-        </motion.h2>
-
-        <div className="relative mt-5 rounded-[1.5rem] border border-[#FFD700]/25 bg-black/45 px-4 py-4">
-          <div className="font-mono text-[9px] font-black uppercase tracking-[0.22em] text-white/38">
-            Win Amount
-          </div>
-
-          <div className="mt-1 font-mono text-4xl font-black text-[#FFD700]">
-            {formatCredits(result.payout)}
-          </div>
-        </div>
-      </motion.div>
-    </motion.div>
   );
 }
 
@@ -698,7 +331,11 @@ function handleReelStop() {
 <GoldRain active={showGoldRain} />
 
 <AnimatePresence>
-  <WinCelebrationOverlay active={showWinCelebration} result={lastResult} />
+  <WinCelebrationOverlay
+  active={showWinCelebration}
+  result={lastResult}
+  betAmount={BET_AMOUNT}
+/>
 </AnimatePresence>
 
 <LiveWinnerFeed />

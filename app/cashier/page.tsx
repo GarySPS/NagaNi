@@ -89,6 +89,39 @@ function getStatusClass(status: WalletRequestStatus) {
   return "border-[#FFD700]/20 bg-[#FFD700]/10 text-[#FFD700]";
 }
 
+
+function getStatusLabel(status: WalletRequestStatus) {
+  if (status === "approved") return "Approved";
+  if (status === "rejected") return "Rejected";
+  return "Pending Review";
+}
+
+function getTicketCardClass(status: WalletRequestStatus) {
+  if (status === "approved") {
+    return "border-emerald-300/20 bg-emerald-400/[0.055] shadow-[0_0_32px_rgba(52,211,153,0.08)]";
+  }
+
+  if (status === "rejected") {
+    return "border-red-300/20 bg-red-500/[0.055] shadow-[0_0_32px_rgba(248,113,113,0.08)]";
+  }
+
+  return "border-[#FFD700]/20 bg-[#FFD700]/[0.055] shadow-[0_0_32px_rgba(255,215,0,0.08)]";
+}
+
+function getTicketNote(request: PendingRequest) {
+  const typeLabel = request.type === "deposit" ? "Deposit" : "Withdraw";
+
+  if (request.status === "approved") {
+    return `${typeLabel} request has been reviewed and settled.`;
+  }
+
+  if (request.status === "rejected") {
+    return `${typeLabel} request was not settled. Please submit a new request if needed.`;
+  }
+
+  return `${typeLabel} request is waiting for wallet review.`;
+}
+
 function CashierAsset({
   src,
   alt,
@@ -525,25 +558,16 @@ async function handleSubmit() {
                 />
               </div>
 
-              <div className="mt-5 grid grid-cols-4 gap-2">
-                {(requestType === "deposit" ? [50, 100, 250, 500] : [50, 100, 250, "MAX"]).map((val) => (
-                  <button
-                    key={val}
-                    type="button"
-                    onClick={() => {
-                      if (val === "MAX") {
-                        setAmount(String(toNumber(wallet?.playable_balance)));
-                      } else {
-                        setAmount(String(val));
-                      }
-                      setErrorText("");
-                    }}
-                    className="rounded-xl border border-white/10 bg-white/[0.03] py-2.5 font-mono text-[10px] font-black text-white/70 hover:bg-white/[0.08] hover:text-[#FFD700] active:scale-95"
-                  >
-                    {val === "MAX" ? "MAX" : `+$${val}`}
-                  </button>
-                ))}
-              </div>
+<div className="mt-5 rounded-[1.15rem] border border-[#FFD700]/15 bg-[#FFD700]/[0.055] px-4 py-3 text-center">
+  <p className="font-mono text-[9px] font-black uppercase tracking-[0.2em] text-[#FFD700]/70">
+    Manual Amount Entry
+  </p>
+
+  <p className="mt-1 text-xs leading-5 text-white/38">
+    Enter the exact amount you want to {requestType}. Requests are reviewed
+    before wallet settlement.
+  </p>
+</div>
             </div>
 
             <motion.button
@@ -563,95 +587,133 @@ async function handleSubmit() {
           </div>
         </section>
 
-        <section className="mt-5">
-          <div className="mb-3 flex items-end justify-between gap-3">
-            <div>
-              <div className="font-mono text-[9px] font-black uppercase tracking-[0.22em] text-[#FFD700]/70">
-                Cashier Tickets
-              </div>
+<section className="mt-5">
+  <div className="mb-3 flex items-end justify-between gap-3">
+    <div>
+      <div className="font-mono text-[9px] font-black uppercase tracking-[0.22em] text-[#FFD700]/70">
+        Wallet Ledger
+      </div>
 
-              <h2 className="mt-1 text-2xl font-black tracking-tight">
-                Recent Tickets
-              </h2>
-            </div>
+      <h2 className="mt-1 text-2xl font-black tracking-tight">
+        Cashier Tickets
+      </h2>
+    </div>
 
-            <div className="rounded-full border border-white/10 bg-black/25 px-3 py-1 font-mono text-[9px] font-black uppercase tracking-[0.16em] text-white/35">
-              {pendingRequests.length} Tickets
-            </div>
-          </div>
+    <div className="rounded-full border border-white/10 bg-black/25 px-3 py-1 font-mono text-[9px] font-black uppercase tracking-[0.16em] text-white/35">
+      {pendingRequests.length} Records
+    </div>
+  </div>
 
-          <div className="space-y-3">
-            {pendingRequests.length === 0 ? (
-              <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.045] p-5 text-center backdrop-blur-xl">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.055] text-white/40">
-                  <Banknote className="h-5 w-5" />
+  <div className="space-y-3">
+    {pendingRequests.length === 0 ? (
+      <div className="relative overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/[0.045] p-5 text-center backdrop-blur-xl">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(250,204,21,0.12),transparent_45%)]" />
+
+        <div className="relative mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.055] text-white/40">
+          <Banknote className="h-5 w-5" />
+        </div>
+
+        <p className="relative mt-3 text-sm font-bold text-white/65">
+          No cashier tickets yet.
+        </p>
+
+        <p className="relative mt-1 text-xs leading-5 text-white/35">
+          Submit a deposit or withdraw request to create your first wallet
+          ledger ticket.
+        </p>
+      </div>
+    ) : (
+      pendingRequests.map((request) => {
+        const typeLabel =
+          request.type === "deposit" ? "Deposit" : "Withdraw";
+        const statusLabel = getStatusLabel(request.status);
+        const note = getTicketNote(request);
+
+        return (
+          <motion.div
+            key={request.id}
+            initial={{ opacity: 0, y: 12, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            className={`relative overflow-hidden rounded-[1.6rem] border p-4 backdrop-blur-xl ${getTicketCardClass(
+              request.status
+            )}`}
+          >
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_100%_0%,rgba(250,204,21,0.12),transparent_42%)]" />
+            <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-[#FFD700]/55 to-transparent" />
+
+            <div className="relative flex items-start justify-between gap-3">
+              <div className="flex items-start gap-3">
+                <div
+                  className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border ${getStatusClass(
+                    request.status
+                  )}`}
+                >
+                  {request.status === "approved" ? (
+                    <CheckCircle2 className="h-5 w-5" />
+                  ) : request.status === "rejected" ? (
+                    <X className="h-5 w-5" />
+                  ) : (
+                    <Vault className="h-5 w-5" />
+                  )}
                 </div>
 
-                <p className="mt-3 text-sm font-bold text-white/65">
-                  No active tickets.
-                </p>
+                <div>
+                  <div className="font-mono text-[9px] font-black uppercase tracking-[0.2em] text-[#FFD700]/70">
+                    {statusLabel}
+                  </div>
 
-                <p className="mt-1 text-xs leading-5 text-white/35">
-                  Submit a deposit or withdraw request to create a pending
-                  ticket.
-                </p>
+                  <div className="mt-1 text-lg font-black text-white">
+                    {typeLabel} Ticket
+                  </div>
+
+                  <div className="mt-1 text-xs leading-5 text-white/42">
+                    {note}
+                  </div>
+                </div>
               </div>
-            ) : (
-              pendingRequests.map((request) => (
-                <motion.div
-                  key={request.id}
-                  initial={{ opacity: 0, y: 12, scale: 0.98 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  className="rounded-[1.5rem] border border-[#FFD700]/20 bg-[#FFD700]/[0.055] p-4 shadow-[0_0_32px_rgba(255,215,0,0.08)] backdrop-blur-xl"
+
+              <div className="text-right">
+                <div className="font-mono text-lg font-black text-[#FFD700]">
+                  {formatMoney(request.amount)}
+                </div>
+
+                <div
+                  className={`mt-1 rounded-full border px-3 py-1 font-mono text-[8px] font-black uppercase tracking-[0.16em] ${getStatusClass(
+                    request.status
+                  )}`}
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="font-mono text-[9px] font-black uppercase tracking-[0.2em] text-[#FFD700]/70">
-                       {request.status === "approved"
-  ? "Approved"
-  : request.status === "rejected"
-    ? "Rejected"
-    : "Pending Review"}
-                      </div>
+                  {request.status}
+                </div>
+              </div>
+            </div>
 
-                      <div className="mt-1 text-lg font-black capitalize text-white">
-                        {request.type} Ticket
-                      </div>
+            <div className="relative mt-3 grid grid-cols-2 gap-2">
+              <div className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2">
+                <span className="block font-mono text-[8px] font-black uppercase tracking-[0.16em] text-white/30">
+                  Submitted
+                </span>
 
-                      <div className="mt-1 text-xs text-white/40">
-                        Submitted {request.createdAt}
-                      </div>
-                    </div>
+                <span className="mt-1 block truncate font-mono text-[10px] font-black text-white/50">
+                  {request.createdAt}
+                </span>
+              </div>
 
-                    <div className="text-right">
-                      <div className="font-mono text-lg font-black text-[#FFD700]">
-                        {formatMoney(request.amount)}
-                      </div>
+              <div className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2">
+                <span className="block font-mono text-[8px] font-black uppercase tracking-[0.16em] text-white/30">
+                  Ticket ID
+                </span>
 
-<div
-  className={`mt-1 rounded-full border px-3 py-1 font-mono text-[8px] font-black uppercase tracking-[0.16em] ${getStatusClass(
-    request.status
-  )}`}
->
-  {request.status}
-</div>
-                    </div>
-                  </div>
-
-                  <div className="mt-3 flex items-center justify-between rounded-2xl border border-white/10 bg-black/25 px-3 py-2">
-                    <span className="font-mono text-[8px] font-black uppercase tracking-[0.16em] text-white/30">
-                      Ticket ID
-                    </span>
-
-                    <span className="max-w-[9rem] truncate font-mono text-[10px] font-black text-white/45">
-                      {request.id}
-                    </span>
-                  </div>
-                </motion.div>
-              ))
-            )}
-          </div>
-        </section>
+                <span className="mt-1 block truncate font-mono text-[10px] font-black text-white/50">
+                  {request.id}
+                </span>
+              </div>
+            </div>
+          </motion.div>
+        );
+      })
+    )}
+  </div>
+</section>
       </section>
 
 <NaganiBottomNav active="balance" />
