@@ -4,7 +4,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Flame, Trophy } from "lucide-react";
+import { Flame, Radio, Trophy } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/app/lib/supabase";
 
@@ -23,6 +23,8 @@ type FeedItem = {
   roomName: string;
   betAmount: number;
   winAmount: number;
+  multiplier: number;
+  createdAt: string;
   isMassive: boolean;
 };
 
@@ -45,13 +47,27 @@ function maskPlayerId(userId?: string | null) {
   return `Player ${userId.slice(0, 4)}***`;
 }
 
+function getTimeLabel(value?: string | null) {
+  if (!value) return "Live now";
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) return "Live now";
+
+  return date.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 function buildFeedItem(spin: LiveSpinRow): FeedItem | null {
   const winAmount = toNumber(spin.win_amount);
 
   if (winAmount <= 0) return null;
 
   const betAmount = toNumber(spin.bet_amount);
-  const isMassive = betAmount > 0 ? winAmount > betAmount * 50 : false;
+  const multiplier = betAmount > 0 ? winAmount / betAmount : 0;
+  const isMassive = betAmount > 0 ? winAmount >= betAmount * 50 : false;
 
   return {
     id: String(
@@ -64,6 +80,8 @@ function buildFeedItem(spin: LiveSpinRow): FeedItem | null {
     roomName: spin.room_name || "Nagani Room",
     betAmount,
     winAmount,
+    multiplier,
+    createdAt: getTimeLabel(spin.created_at),
     isMassive,
   };
 }
@@ -82,7 +100,7 @@ export default function LiveWinnerFeed() {
 
       const timer = window.setTimeout(() => {
         setItems((current) => current.filter((entry) => entry.id !== item.id));
-      }, 4000);
+      }, 5000);
 
       timers.current.push(timer);
     }
@@ -110,83 +128,92 @@ export default function LiveWinnerFeed() {
   }, []);
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 top-3 z-40 flex justify-center px-4">
+    <div className="pointer-events-none fixed inset-x-0 top-3 z-50 flex justify-center px-4">
       <div className="w-full max-w-md space-y-2">
         <AnimatePresence initial={false}>
-          {items.map((item) => {
-            const multiplier =
-              item.betAmount > 0 ? item.winAmount / item.betAmount : 0;
+          {items.map((item) => (
+            <motion.div
+              key={item.id}
+              initial={{ opacity: 0, y: -18, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -12, scale: 0.96 }}
+              transition={{ type: "spring", stiffness: 260, damping: 24 }}
+              className={`pointer-events-auto relative overflow-hidden rounded-[1.5rem] border px-3 py-3 backdrop-blur-2xl ${
+                item.isMassive
+                  ? "border-[#FFD700]/55 bg-[#1b0707]/88 shadow-[0_0_38px_rgba(255,215,0,0.24),0_0_50px_rgba(220,38,38,0.18)]"
+                  : "border-white/10 bg-black/72 shadow-[0_0_24px_rgba(255,255,255,0.055)]"
+              }`}
+            >
+              <div
+                className={`pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent ${
+                  item.isMassive ? "via-[#FFD700]/90" : "via-white/25"
+                } to-transparent`}
+              />
 
-            return (
-              <motion.div
-                key={item.id}
-                initial={{ opacity: 0, y: -18, scale: 0.96 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -10, scale: 0.96 }}
-                transition={{ type: "spring", stiffness: 260, damping: 24 }}
-                className={`pointer-events-auto relative overflow-hidden rounded-[1.4rem] border px-3 py-3 backdrop-blur-2xl ${
-                  item.isMassive
-                    ? "border-[#FFD700]/50 bg-[#1b0707]/80 shadow-[0_0_34px_rgba(255,215,0,0.22),0_0_44px_rgba(139,0,0,0.22)]"
-                    : "border-white/10 bg-black/65 shadow-[0_0_24px_rgba(255,255,255,0.055)]"
-                }`}
-              >
+              <div className="pointer-events-none absolute -right-10 -top-12 h-28 w-28 rounded-full bg-[#FFD700]/10 blur-[45px]" />
+              <div className="pointer-events-none absolute -bottom-14 -left-10 h-28 w-28 rounded-full bg-red-500/10 blur-[45px]" />
+
+              <div className="relative z-10 flex items-center gap-3">
                 <div
-                  className={`pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent ${
-                    item.isMassive ? "via-[#FFD700]/80" : "via-white/25"
-                  } to-transparent`}
-                />
+                  className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border ${
+                    item.isMassive
+                      ? "border-[#FFD700]/40 bg-[#FFD700]/15 text-[#FFD700]"
+                      : "border-red-300/15 bg-red-500/10 text-red-100"
+                  }`}
+                >
+                  {item.isMassive ? (
+                    <Flame className="h-5 w-5" />
+                  ) : (
+                    <Trophy className="h-5 w-5" />
+                  )}
+                </div>
 
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border ${
-                      item.isMassive
-                        ? "border-[#FFD700]/35 bg-[#FFD700]/15 text-[#FFD700]"
-                        : "border-white/10 bg-white/[0.06] text-white/70"
-                    }`}
-                  >
-                    {item.isMassive ? (
-                      <Flame className="h-5 w-5" />
-                    ) : (
-                      <Trophy className="h-5 w-5" />
-                    )}
-                  </div>
-
-                  <div className="min-w-0 flex-1">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
                     <div
                       className={`font-mono text-[8px] font-black uppercase tracking-[0.2em] ${
-                        item.isMassive ? "text-[#FFD700]" : "text-white/40"
+                        item.isMassive ? "text-[#FFD700]" : "text-red-100/70"
                       }`}
                     >
-                      {item.isMassive ? "Massive Win" : "Live Winner"}
+                      {item.isMassive ? "Dragon Win" : "Live Winner"}
                     </div>
 
-                    <p className="mt-0.5 truncate text-sm font-black text-white/85">
-                      {item.player} won{" "}
-                      <span
-                        className={
-                          item.isMassive ? "text-[#FFD700]" : "text-white"
-                        }
-                      >
-                        {formatMoney(item.winAmount)}
-                      </span>
-                    </p>
-
-                    <div className="mt-1 flex items-center gap-2">
-                      <span className="truncate font-mono text-[9px] font-black uppercase tracking-[0.14em] text-white/35">
-                        {item.roomName}
-                      </span>
-
-                      {multiplier > 0 && (
-                        <span className="rounded-full border border-white/10 bg-white/[0.055] px-2 py-0.5 font-mono text-[8px] font-black uppercase tracking-[0.12em] text-white/45">
-                          {multiplier.toFixed(1)}x
-                        </span>
-                      )}
+                    <div className="flex items-center gap-1 rounded-full border border-emerald-300/15 bg-emerald-400/10 px-2 py-0.5 font-mono text-[7px] font-black uppercase tracking-[0.14em] text-emerald-100/70">
+                      <Radio className="h-2.5 w-2.5 animate-pulse" />
+                      Live
                     </div>
                   </div>
+
+                  <p className="mt-1 truncate text-sm font-black text-white/88">
+                    {item.player} won{" "}
+                    <span
+                      className={
+                        item.isMassive ? "text-[#FFD700]" : "text-white"
+                      }
+                    >
+                      {formatMoney(item.winAmount)}
+                    </span>
+                  </p>
+
+                  <div className="mt-1.5 flex items-center gap-2">
+                    <span className="truncate font-mono text-[9px] font-black uppercase tracking-[0.14em] text-white/35">
+                      {item.roomName}
+                    </span>
+
+                    {item.multiplier > 0 && (
+                      <span className="rounded-full border border-[#FFD700]/15 bg-[#FFD700]/10 px-2 py-0.5 font-mono text-[8px] font-black uppercase tracking-[0.12em] text-[#FFD700]/75">
+                        {item.multiplier.toFixed(1)}x
+                      </span>
+                    )}
+
+                    <span className="font-mono text-[8px] font-black uppercase tracking-[0.12em] text-white/25">
+                      {item.createdAt}
+                    </span>
+                  </div>
                 </div>
-              </motion.div>
-            );
-          })}
+              </div>
+            </motion.div>
+          ))}
         </AnimatePresence>
       </div>
     </div>

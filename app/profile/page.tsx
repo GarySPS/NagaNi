@@ -271,7 +271,7 @@ export default function ProfilePage() {
   <div className="nagani-grid-overlay absolute inset-0 opacity-40" />
 </div>
 
-      <section className="relative mx-auto min-h-dvh w-full max-w-md px-4 pb-28 pt-4">
+     <section className="relative mx-auto min-h-dvh w-full max-w-md px-4 pb-32 pt-4">
         <header className="sticky top-0 z-30 -mx-4 border-b border-white/10 bg-[#120304]/88 px-4 pb-3 pt-3 shadow-[0_18px_60px_rgba(0,0,0,0.55)] backdrop-blur-2xl">
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
@@ -281,13 +281,13 @@ export default function ProfilePage() {
                 </div>
 
                 <div>
-                  <div className="font-mono text-[9px] font-black uppercase tracking-[0.22em] text-[#FFD700]/70">
-                    Profile
-                  </div>
+<div className="font-mono text-[9px] font-black uppercase tracking-[0.22em] text-[#FFD700]/70">
+  Member Center
+</div>
 
-                  <h1 className="text-xl font-black leading-none tracking-tight text-white">
-                    Account
-                  </h1>
+<h1 className="text-xl font-black leading-none tracking-tight text-white">
+  Profile
+</h1>
                 </div>
               </div>
             </div>
@@ -399,131 +399,229 @@ export default function ProfilePage() {
       <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-200" />
 
       <p className="text-xs font-semibold leading-5 text-white/45">
-        Secure session active. Wallet activity is reviewed before settlement.
+        Secure session active. Wallet activity is checked before settlement.
       </p>
     </div>
   </div>
 </section>
 
-        <section className="mt-4 grid grid-cols-2 gap-3">
-          <div className="rounded-[1.5rem] border border-[#FFD700]/20 bg-[#FFD700]/[0.07] p-4 shadow-[0_0_28px_rgba(255,215,0,0.08)]">
-            <div className="flex items-center gap-2 font-mono text-[9px] font-black uppercase tracking-[0.18em] text-[#FFD700]/70">
-              <WalletCards className="h-3.5 w-3.5" />
-              Playable
-            </div>
+<section className="relative mt-4 overflow-hidden rounded-[2rem] border border-[#FFD700]/20 bg-gradient-to-br from-black/70 via-[#180405]/80 to-[#4a0707]/45 p-4 shadow-[0_0_55px_rgba(255,215,0,0.09)]">
+  <ProfileAsset
+    src="/assets/nagani/ui/wallet-panel.webp"
+    alt="Nagani wallet panel"
+    className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-18"
+  />
 
-            <div className="mt-2 font-mono text-xl font-black text-white">
-              {walletLoading ? "..." : formatMoney(wallet?.playable_balance)}
-            </div>
+  <div className="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-[#FFD700]/10 blur-[70px]" />
+  <div className="pointer-events-none absolute -bottom-20 -left-16 h-48 w-48 rounded-full bg-red-500/10 blur-[70px]" />
+
+  <div className="relative z-10">
+    <div className="flex items-center justify-between gap-3">
+      <div>
+        <div className="font-mono text-[9px] font-black uppercase tracking-[0.22em] text-[#FFD700]/70">
+          Wallet Overview
+        </div>
+
+        <h2 className="mt-1 text-2xl font-black tracking-tight text-white">
+          Player Credits
+        </h2>
+      </div>
+
+      <button
+        type="button"
+        onClick={refreshWallet}
+        disabled={refreshing}
+        className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[#FFD700]/20 bg-[#FFD700]/10 text-[#FFD700] active:scale-95 disabled:opacity-50"
+      >
+        <RefreshCw
+          className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
+        />
+      </button>
+    </div>
+
+    <div className="mt-4 rounded-[1.6rem] border border-[#FFD700]/18 bg-black/40 p-4">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <div className="font-mono text-[8px] font-black uppercase tracking-[0.22em] text-white/35">
+            Total Available
           </div>
 
-          <div className="rounded-[1.5rem] border border-red-300/20 bg-red-500/[0.08] p-4">
-            <div className="flex items-center gap-2 font-mono text-[9px] font-black uppercase tracking-[0.18em] text-red-100/70">
-              <Vault className="h-3.5 w-3.5" />
-              Bonus Vault
-            </div>
-
-            <div className="mt-2 font-mono text-xl font-black text-red-50">
-              {walletLoading ? "..." : formatMoney(wallet?.locked_vault)}
-            </div>
+          <div className="mt-1 font-mono text-3xl font-black leading-none text-[#FFD700]">
+            {walletLoading ? "..." : formatMoney(totalCredits)}
           </div>
-        </section>
+        </div>
 
-        <section className="mt-5">
-          <div className="mb-3">
-            <div className="font-mono text-[9px] font-black uppercase tracking-[0.22em] text-[#FFD700]/70">
-              Quick Access
-            </div>
+        <div className="flex h-12 w-12 items-center justify-center rounded-[1.2rem] border border-[#FFD700]/25 bg-[#FFD700]/10 text-[#FFD700] shadow-[0_0_25px_rgba(255,215,0,0.1)]">
+          <WalletCards className="h-6 w-6" />
+        </div>
+      </div>
 
-            <h2 className="mt-1 text-2xl font-black tracking-tight">
-              Account Center
-            </h2>
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        <div className="rounded-[1.25rem] border border-emerald-300/15 bg-emerald-400/[0.07] p-3">
+          <div className="flex items-center gap-2 font-mono text-[8px] font-black uppercase tracking-[0.18em] text-emerald-100/60">
+            <Banknote className="h-3.5 w-3.5" />
+            Playable
           </div>
 
-          <div className="space-y-3">
-            <button
-              type="button"
-              onClick={() => router.push("/cashier")}
-              className="flex w-full items-center justify-between rounded-[1.5rem] border border-white/10 bg-white/[0.045] p-4 text-left active:scale-[0.99]"
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#FFD700]/20 bg-[#FFD700]/10 text-[#FFD700]">
-                  <Banknote className="h-5 w-5" />
-                </div>
-
-                <div>
-                  <div className="font-black text-white">Cashier</div>
-                  <div className="mt-0.5 text-xs text-white/35">
-                    Deposit and withdraw request center
-                  </div>
-                </div>
-              </div>
-
-              <span className="text-white/30">›</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => router.push("/live")}
-              className="flex w-full items-center justify-between rounded-[1.5rem] border border-white/10 bg-white/[0.045] p-4 text-left active:scale-[0.99]"
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#FFD700]/20 bg-[#FFD700]/10 text-[#FFD700]">
-                  <Trophy className="h-5 w-5" />
-                </div>
-
-                <div>
-                  <div className="font-black text-white">Live Winners</div>
-                  <div className="mt-0.5 text-xs text-white/35">
-                    View today’s hot rooms and winners
-                  </div>
-                </div>
-              </div>
-
-              <span className="text-white/30">›</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() =>
-                showToast({
-                  title: "Membership",
-                  message: "VIP member rewards are coming soon.",
-                })
-              }
-              className="flex w-full items-center justify-between rounded-[1.5rem] border border-white/10 bg-white/[0.045] p-4 text-left active:scale-[0.99]"
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-red-300/20 bg-red-500/10 text-red-100">
-                  <Crown className="h-5 w-5" />
-                </div>
-
-                <div>
-                  <div className="font-black text-white">VIP Center</div>
-                  <div className="mt-0.5 text-xs text-white/35">
-                    Rewards, badges, and member benefits
-                  </div>
-                </div>
-              </div>
-
-              <span className="text-white/30">›</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={handleLogout}
-              disabled={signingOut}
-              className="flex w-full items-center justify-center gap-3 rounded-[1.5rem] border border-red-300/20 bg-red-500/10 px-4 py-4 font-black text-red-100 active:scale-[0.99] disabled:opacity-60"
-            >
-              {signingOut ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
-              ) : (
-                <LogOut className="h-5 w-5" />
-              )}
-              {signingOut ? "Signing Out" : "Logout"}
-            </button>
+          <div className="mt-2 truncate font-mono text-lg font-black text-emerald-50">
+            {walletLoading ? "..." : formatMoney(wallet?.playable_balance)}
           </div>
-        </section>
+
+          <div className="mt-1 text-[10px] font-semibold text-white/32">
+            Ready for rooms
+          </div>
+        </div>
+
+        <div className="rounded-[1.25rem] border border-red-300/15 bg-red-500/[0.08] p-3">
+          <div className="flex items-center gap-2 font-mono text-[8px] font-black uppercase tracking-[0.18em] text-red-100/60">
+            <Vault className="h-3.5 w-3.5" />
+            Vault
+          </div>
+
+          <div className="mt-2 truncate font-mono text-lg font-black text-red-50">
+            {walletLoading ? "..." : formatMoney(wallet?.locked_vault)}
+          </div>
+
+          <div className="mt-1 text-[10px] font-semibold text-white/32">
+            Bonus storage
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div className="mt-3 flex items-start gap-2 rounded-[1.25rem] border border-white/10 bg-white/[0.04] px-3 py-2.5">
+      <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-[#FFD700]/80" />
+
+      <p className="text-xs font-semibold leading-5 text-white/42">
+        Deposit and withdrawal requests are recorded in your cashier ledger before settlement.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section className="mt-5">
+  <div className="mb-3">
+    <div className="font-mono text-[9px] font-black uppercase tracking-[0.22em] text-[#FFD700]/70">
+      Quick Access
+    </div>
+
+    <h2 className="mt-1 text-2xl font-black tracking-tight">
+      Account Center
+    </h2>
+  </div>
+
+  <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-white/[0.07] via-black/45 to-red-950/35 p-3 shadow-[0_0_50px_rgba(0,0,0,0.35)]">
+    <ProfileAsset
+      src="/assets/nagani/ui/account-center.webp"
+      alt="Nagani account center"
+      className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-14"
+    />
+
+    <div className="pointer-events-none absolute -right-20 top-0 h-44 w-44 rounded-full bg-[#FFD700]/10 blur-[70px]" />
+    <div className="pointer-events-none absolute -left-20 bottom-0 h-44 w-44 rounded-full bg-red-500/10 blur-[70px]" />
+
+    <div className="relative z-10 grid grid-cols-2 gap-3">
+      <button
+        type="button"
+        onClick={() => router.push("/")}
+        className="group overflow-hidden rounded-[1.45rem] border border-[#FFD700]/20 bg-[#FFD700]/[0.07] p-4 text-left shadow-[0_0_28px_rgba(255,215,0,0.06)] active:scale-[0.98]"
+      >
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#FFD700]/25 bg-[#FFD700]/10 text-[#FFD700] transition group-active:scale-95">
+          <Flame className="h-5 w-5" />
+        </div>
+
+        <div className="mt-4 font-black text-white">Play Lobby</div>
+
+        <div className="mt-1 text-xs font-semibold leading-4 text-white/35">
+          Return to Nagani games
+        </div>
+      </button>
+
+      <button
+        type="button"
+        onClick={() => router.push("/cashier")}
+        className="group overflow-hidden rounded-[1.45rem] border border-emerald-300/15 bg-emerald-400/[0.06] p-4 text-left active:scale-[0.98]"
+      >
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-emerald-300/20 bg-emerald-400/10 text-emerald-100 transition group-active:scale-95">
+          <Banknote className="h-5 w-5" />
+        </div>
+
+        <div className="mt-4 font-black text-white">Cashier</div>
+
+        <div className="mt-1 text-xs font-semibold leading-4 text-white/35">
+          Deposit and withdraw
+        </div>
+      </button>
+
+      <button
+        type="button"
+        onClick={() => router.push("/live")}
+        className="group overflow-hidden rounded-[1.45rem] border border-red-300/15 bg-red-500/[0.07] p-4 text-left active:scale-[0.98]"
+      >
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-red-300/20 bg-red-500/10 text-red-100 transition group-active:scale-95">
+          <Trophy className="h-5 w-5" />
+        </div>
+
+        <div className="mt-4 font-black text-white">Live Wins</div>
+
+        <div className="mt-1 text-xs font-semibold leading-4 text-white/35">
+          Winner board
+        </div>
+      </button>
+
+      <button
+        type="button"
+        onClick={() =>
+          showToast({
+            title: "Membership",
+            message: "VIP member rewards are coming soon.",
+          })
+        }
+        className="group overflow-hidden rounded-[1.45rem] border border-[#FFD700]/15 bg-white/[0.045] p-4 text-left active:scale-[0.98]"
+      >
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#FFD700]/20 bg-[#FFD700]/10 text-[#FFD700] transition group-active:scale-95">
+          <Crown className="h-5 w-5" />
+        </div>
+
+        <div className="mt-4 font-black text-white">VIP Center</div>
+
+        <div className="mt-1 text-xs font-semibold leading-4 text-white/35">
+          Rewards coming soon
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <section className="mt-4 overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.045] p-4">
+    <div className="flex items-start gap-3">
+      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[#FFD700]/20 bg-[#FFD700]/10 text-[#FFD700]">
+        <ShieldCheck className="h-5 w-5" />
+      </div>
+
+      <div className="min-w-0">
+        <div className="font-black text-white">Account Security</div>
+
+        <p className="mt-1 text-xs font-semibold leading-5 text-white/38">
+          Your session is protected by account login. Wallet requests are reviewed before settlement.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <button
+    type="button"
+    onClick={handleLogout}
+    disabled={signingOut}
+    className="mt-4 flex w-full items-center justify-center gap-3 rounded-[1.6rem] border border-red-300/20 bg-gradient-to-r from-red-500/15 via-red-950/25 to-black/30 px-4 py-4 font-black text-red-100 shadow-[0_0_35px_rgba(239,68,68,0.08)] active:scale-[0.99] disabled:opacity-60"
+  >
+    {signingOut ? (
+      <Loader2 className="h-5 w-5 animate-spin" />
+    ) : (
+      <LogOut className="h-5 w-5" />
+    )}
+    {signingOut ? "Signing Out" : "Logout"}
+  </button>
+</section>
       </section>
 
 <NaganiBottomNav active="profile" />
