@@ -36,6 +36,8 @@ type PromoBanner = {
   title: string;
   subtitle: string;
   cta: string;
+  bannerSrc?: string;
+  glyph: string;
   roomName?: RoomName;
 };
 
@@ -48,6 +50,7 @@ type GameCard = {
   badge: string;
   glyph: string;
   accent: "red" | "gold" | "green" | "purple" | "blue";
+  cardSrc?: string;
   roomName?: RoomName;
 };
 
@@ -58,6 +61,8 @@ const PROMO_BANNERS: PromoBanner[] = [
     title: "Red Dragon Myanmar",
     subtitle: "Fire reels · Bonus vault · Live winner feed",
     cta: "Play Now",
+    bannerSrc: "/assets/nagani/banners/red-dragon.webp",
+    glyph: "🐉",
     roomName: "Dragon's Peak",
   },
   {
@@ -66,6 +71,8 @@ const PROMO_BANNERS: PromoBanner[] = [
     title: "Tomorrow Bonus",
     subtitle: "Spin today. Return tomorrow. Unlock stored value.",
     cta: "Enter Room",
+    bannerSrc: "/assets/nagani/banners/daily-vault.webp",
+    glyph: "🦬",
     roomName: "Golden Buffalo",
   },
   {
@@ -74,6 +81,8 @@ const PROMO_BANNERS: PromoBanner[] = [
     title: "Casino Aggregator",
     subtitle: "PG Soft, Pragmatic, Jili, Fishing and Arcade demos.",
     cta: "Explore",
+    bannerSrc: "/assets/nagani/banners/provider-network.webp",
+    glyph: "🎰",
   },
 ];
 
@@ -90,49 +99,53 @@ const CATEGORIES: {
 
 const GAME_CARDS: GameCard[] = [
   {
-    id: "red-dragon-myanmar",
-    title: "Red Dragon",
-    subtitle: "Myanmar",
-    provider: "NAGANI",
-    category: "nagani",
-    badge: "Original",
-    glyph: "🐉",
-    accent: "red",
-    roomName: "Dragon's Peak",
-  },
-  {
-    id: "dragons-peak",
-    title: "Dragon's",
-    subtitle: "Peak",
-    provider: "NAGANI",
-    category: "nagani",
-    badge: "High",
-    glyph: "🔥",
-    accent: "red",
-    roomName: "Dragon's Peak",
-  },
-  {
-    id: "golden-buffalo",
-    title: "Golden",
-    subtitle: "Buffalo",
-    provider: "NAGANI",
-    category: "nagani",
-    badge: "Medium",
-    glyph: "🦬",
-    accent: "gold",
-    roomName: "Golden Buffalo",
-  },
-  {
-    id: "green-valley",
-    title: "Green",
-    subtitle: "Valley",
-    provider: "NAGANI",
-    category: "nagani",
-    badge: "Low",
-    glyph: "🍃",
-    accent: "green",
-    roomName: "Green Valley",
-  },
+  id: "red-dragon-myanmar",
+  title: "Red Dragon",
+  subtitle: "Myanmar",
+  provider: "NAGANI",
+  category: "nagani",
+  badge: "Original",
+  glyph: "🐉",
+  accent: "red",
+  cardSrc: "/assets/nagani/cards/red-dragon-myanmar.webp",
+  roomName: "Dragon's Peak",
+},
+{
+  id: "dragons-peak",
+  title: "Dragon's",
+  subtitle: "Peak",
+  provider: "NAGANI",
+  category: "nagani",
+  badge: "High",
+  glyph: "🔥",
+  accent: "red",
+  cardSrc: "/assets/nagani/cards/dragons-peak.webp",
+  roomName: "Dragon's Peak",
+},
+{
+  id: "golden-buffalo",
+  title: "Golden",
+  subtitle: "Buffalo",
+  provider: "NAGANI",
+  category: "nagani",
+  badge: "Medium",
+  glyph: "🦬",
+  accent: "gold",
+  cardSrc: "/assets/nagani/cards/golden-buffalo.webp",
+  roomName: "Golden Buffalo",
+},
+{
+  id: "green-valley",
+  title: "Green",
+  subtitle: "Valley",
+  provider: "NAGANI",
+  category: "nagani",
+  badge: "Low",
+  glyph: "🍃",
+  accent: "green",
+  cardSrc: "/assets/nagani/cards/green-valley.webp",
+  roomName: "Green Valley",
+},
 
   {
     id: "pg-soft",
@@ -318,6 +331,54 @@ function getCardVisual(accent: GameCard["accent"]) {
     badge: "border-fuchsia-300/25 bg-fuchsia-400/15 text-fuchsia-100",
     glyph: "text-fuchsia-100",
   };
+}
+
+function GameCardAsset({
+  src,
+  alt,
+}: {
+  src?: string;
+  alt: string;
+}) {
+  const [failed, setFailed] = useState(false);
+
+  if (!src || failed) {
+    return null;
+  }
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className="absolute inset-0 h-full w-full object-cover opacity-95"
+      draggable={false}
+      onError={() => setFailed(true)}
+    />
+  );
+}
+
+function PromoBannerAsset({
+  src,
+  alt,
+}: {
+  src?: string;
+  alt: string;
+}) {
+  const [failed, setFailed] = useState(false);
+
+  if (!src || failed) {
+    return null;
+  }
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className="absolute inset-0 h-full w-full object-cover opacity-80"
+      draggable={false}
+      onError={() => setFailed(true)}
+    />
+  );
 }
 
 export default function LobbyPage() {
@@ -611,6 +672,10 @@ export default function LobbyPage() {
     transition={{ type: "spring", stiffness: 180, damping: 22 }}
     className="nagani-red-panel relative min-h-[11.5rem] w-full overflow-hidden rounded-[2rem] p-4 text-left"
   >
+    <PromoBannerAsset src={banner.bannerSrc} alt={banner.title} />
+
+<div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/82 via-black/38 to-black/20" />
+<div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
     <div className="pointer-events-none absolute inset-0">
       <div className="absolute left-[-3rem] top-[-4rem] h-40 w-40 rounded-full bg-red-500/35 blur-3xl" />
       <div className="absolute right-[-2rem] top-[-2rem] h-44 w-44 rounded-full bg-nagani-gold/20 blur-3xl" />
@@ -622,9 +687,9 @@ export default function LobbyPage() {
       <div className="relative flex h-32 w-32 items-center justify-center">
         <div className="absolute inset-0 rounded-full border border-nagani-gold/15 bg-nagani-gold/5 blur-[1px]" />
         <div className="absolute h-24 w-24 rounded-full bg-red-500/20 blur-2xl" />
-        <div className="relative text-7xl drop-shadow-[0_0_28px_rgba(250,204,21,0.38)]">
-          🐉
-        </div>
+<div className="relative text-7xl drop-shadow-[0_0_28px_rgba(250,204,21,0.38)]">
+  {banner.glyph}
+</div>
       </div>
     </div>
 
@@ -795,14 +860,20 @@ export default function LobbyPage() {
             </div>
           </div>
 
-          <div className="relative z-10 mt-4 flex justify-center">
-            <div className="relative flex h-20 w-20 items-center justify-center rounded-[1.6rem] border border-white/10 bg-black/35 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
-              <div className="absolute inset-0 rounded-[1.6rem] bg-gradient-to-br from-white/10 to-transparent" />
-              <div className={`relative text-5xl drop-shadow-[0_0_18px_rgba(250,204,21,0.24)] ${visual.glyph}`}>
-                {game.glyph}
-              </div>
-            </div>
-          </div>
+<div className="relative z-10 mt-4 flex justify-center">
+  <div className="relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-[1.65rem] border border-white/10 bg-black/35 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+    <GameCardAsset
+      src={game.cardSrc}
+      alt={`${game.title} ${game.subtitle}`}
+    />
+
+    <div className="absolute inset-0 rounded-[1.65rem] bg-gradient-to-br from-white/10 via-transparent to-black/35" />
+
+    <div className={`relative z-10 text-5xl drop-shadow-[0_0_18px_rgba(250,204,21,0.24)] ${visual.glyph}`}>
+      {game.glyph}
+    </div>
+  </div>
+</div>
 
           <div className="relative z-10 mt-4">
             <h3 className="text-[1.55rem] font-black leading-[0.92] text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.65)]">

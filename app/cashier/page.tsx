@@ -89,6 +89,32 @@ function getStatusClass(status: WalletRequestStatus) {
   return "border-[#FFD700]/20 bg-[#FFD700]/10 text-[#FFD700]";
 }
 
+function CashierAsset({
+  src,
+  alt,
+  className,
+}: {
+  src: string;
+  alt: string;
+  className: string;
+}) {
+  const [failed, setFailed] = useState(false);
+
+  if (failed) {
+    return null;
+  }
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className={className}
+      draggable={false}
+      onError={() => setFailed(true)}
+    />
+  );
+}
+
 export default function CashierPage() {
   const router = useRouter();
   const toastTimer = useRef<number | null>(null);
@@ -331,11 +357,19 @@ async function handleSubmit() {
         )}
       </AnimatePresence>
 
-      <div className="pointer-events-none fixed inset-0">
-        <div className="absolute left-1/2 top-[-10rem] h-[28rem] w-[28rem] -translate-x-1/2 rounded-full bg-[#8B0000]/45 blur-[120px]" />
-        <div className="absolute bottom-[-14rem] right-[-10rem] h-[28rem] w-[28rem] rounded-full bg-[#FFD700]/10 blur-[120px]" />
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:44px_44px] opacity-40" />
-      </div>
+<div className="pointer-events-none fixed inset-0">
+  <CashierAsset
+    src="/assets/nagani/backgrounds/cashier.webp"
+    alt="Nagani cashier background"
+    className="absolute inset-0 h-full w-full object-cover opacity-30"
+  />
+
+  <div className="absolute inset-0 bg-[#050101]/70" />
+  <div className="absolute left-1/2 top-[-10rem] h-[28rem] w-[28rem] -translate-x-1/2 rounded-full bg-[#8B0000]/45 blur-[120px]" />
+  <div className="absolute bottom-[-14rem] right-[-10rem] h-[28rem] w-[28rem] rounded-full bg-[#FFD700]/10 blur-[120px]" />
+  <div className="absolute bottom-[10rem] left-[-10rem] h-[24rem] w-[24rem] rounded-full bg-emerald-500/10 blur-[120px]" />
+  <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:44px_44px] opacity-40" />
+</div>
 
       <section className="relative mx-auto min-h-dvh w-full max-w-md px-4 pb-28 pt-4">
         <header className="sticky top-0 z-30 -mx-4 border-b border-white/10 bg-[#120304]/88 px-4 pb-3 pt-3 shadow-[0_18px_60px_rgba(0,0,0,0.55)] backdrop-blur-2xl">
@@ -414,8 +448,25 @@ async function handleSubmit() {
           </div>
         </section>
 
-<section className="mt-4 overflow-hidden rounded-[2rem] border border-[#FFD700]/20 bg-black/60 shadow-[0_24px_80px_rgba(0,0,0,0.6)] backdrop-blur-2xl">
-          <div className="border-b border-white/5 bg-gradient-to-br from-[#8B0000]/30 via-[#FFD700]/10 to-black p-5">
+<section className="relative mt-4 overflow-hidden rounded-[2rem] border border-[#FFD700]/20 bg-black/60 shadow-[0_24px_80px_rgba(0,0,0,0.6)] backdrop-blur-2xl">
+  <CashierAsset
+    src={
+      requestType === "deposit"
+        ? "/assets/nagani/ui/deposit-card.webp"
+        : "/assets/nagani/ui/withdraw-card.webp"
+    }
+    alt={`${activeTypeLabel} cashier card`}
+    className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-18"
+  />
+
+  <CashierAsset
+    src="/assets/nagani/effects/coin-glow.webp"
+    alt="Cashier coin glow"
+    className="pointer-events-none absolute -right-16 top-0 h-64 w-64 object-contain opacity-35"
+  />
+
+  <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/15 via-black/35 to-black/70" />
+          <div className="relative z-10 border-b border-white/5 bg-gradient-to-br from-[#8B0000]/30 via-[#FFD700]/10 to-black/80 p-5">
             <div className="flex items-center gap-2 font-mono text-[10px] font-black uppercase tracking-[0.24em] text-[#FFD700]/70">
               <Vault className="h-4 w-4" />
               Secure Cage
@@ -430,7 +481,7 @@ async function handleSubmit() {
 </p>
           </div>
 
-          <div className="p-5">
+          <div className="relative z-10 p-5">
             <div className="grid grid-cols-2 gap-2 rounded-[1.2rem] border border-white/10 bg-black/40 p-1">
               {(["deposit", "withdraw"] as RequestType[]).map((type) => {
                 const active = requestType === type;
@@ -500,7 +551,7 @@ async function handleSubmit() {
               onClick={handleSubmit}
               disabled={submitting}
               whileTap={{ scale: submitting ? 1 : 0.96 }}
-              className="mt-5 flex w-full items-center justify-center gap-3 rounded-[1.25rem] border border-red-500/50 bg-gradient-to-r from-[#8B0000] via-red-600 to-[#8B0000] px-5 py-4 font-mono text-sm font-black uppercase tracking-[0.2em] text-white shadow-[0_0_30px_rgba(220,38,38,0.25)] disabled:cursor-not-allowed disabled:opacity-50"
+              className="mt-5 flex w-full items-center justify-center gap-3 rounded-[1.35rem] border border-[#FFD700]/35 bg-gradient-to-r from-[#8B0000] via-red-600 to-[#d4af37] px-5 py-4 font-mono text-sm font-black uppercase tracking-[0.22em] text-white shadow-[0_0_34px_rgba(250,204,21,0.18),0_0_28px_rgba(220,38,38,0.18)] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {submitting ? (
                 <Loader2 className="h-5 w-5 animate-spin" />

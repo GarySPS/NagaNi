@@ -3,7 +3,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReelSymbolKey } from "./SlotReel";
 
 type ExtraSymbolKey =
@@ -63,114 +63,114 @@ const SYMBOLS: Record<
   }
 > = {
   dragon: {
-    label: "Red Dragon",
-    shortLabel: "DRG",
-    assetSrc: null,
+  label: "Red Dragon",
+  shortLabel: "DRG",
+  assetSrc: "/assets/nagani/symbols/dragon.webp",
     placeholder: "bg-gradient-to-br from-red-600 via-red-950 to-black",
     glow: "shadow-[0_0_28px_rgba(239,68,68,0.55)]",
   },
   ruby: {
-    label: "Ruby",
-    shortLabel: "RBY",
-    assetSrc: null,
+  label: "Ruby",
+  shortLabel: "RBY",
+  assetSrc: "/assets/nagani/symbols/ruby.webp",
     placeholder: "bg-gradient-to-br from-rose-400 via-red-800 to-black",
     glow: "shadow-[0_0_24px_rgba(244,63,94,0.45)]",
   },
   gold: {
-    label: "Gold Bar",
-    shortLabel: "GLD",
-    assetSrc: null,
+  label: "Gold Bar",
+  shortLabel: "GLD",
+  assetSrc: "/assets/nagani/symbols/gold.webp",
     placeholder: "bg-gradient-to-br from-yellow-200 via-amber-600 to-black",
     glow: "shadow-[0_0_26px_rgba(250,204,21,0.5)]",
   },
   coin: {
-    label: "Gold Coin",
-    shortLabel: "COIN",
-    assetSrc: null,
+  label: "Gold Coin",
+  shortLabel: "COIN",
+  assetSrc: "/assets/nagani/symbols/coin.webp",
     placeholder: "bg-gradient-to-br from-amber-200 via-yellow-700 to-black",
     glow: "shadow-[0_0_24px_rgba(251,191,36,0.45)]",
   },
   chinthe: {
-    label: "Chinthe",
-    shortLabel: "CHIN",
-    assetSrc: null,
+  label: "Chinthe",
+  shortLabel: "CHIN",
+  assetSrc: "/assets/nagani/symbols/chinthe.webp",
     placeholder: "bg-gradient-to-br from-orange-300 via-amber-800 to-black",
     glow: "shadow-[0_0_22px_rgba(251,146,60,0.42)]",
   },
   lotus: {
-    label: "Lotus",
-    shortLabel: "LOT",
-    assetSrc: null,
+  label: "Lotus",
+  shortLabel: "LOT",
+  assetSrc: "/assets/nagani/symbols/lotus.webp",
     placeholder: "bg-gradient-to-br from-pink-300 via-rose-800 to-black",
     glow: "shadow-[0_0_22px_rgba(244,114,182,0.4)]",
   },
   jade: {
-    label: "Jade",
-    shortLabel: "JDE",
-    assetSrc: null,
+  label: "Jade",
+  shortLabel: "JDE",
+  assetSrc: "/assets/nagani/symbols/jade.webp",
     placeholder: "bg-gradient-to-br from-emerald-300 via-green-800 to-black",
     glow: "shadow-[0_0_22px_rgba(52,211,153,0.42)]",
   },
   firepearl: {
-    label: "Fire Pearl",
-    shortLabel: "FIRE",
-    assetSrc: null,
+  label: "Fire Pearl",
+  shortLabel: "FIRE",
+  assetSrc: "/assets/nagani/symbols/firepearl.webp",
     placeholder: "bg-gradient-to-br from-orange-300 via-red-700 to-black",
     glow: "shadow-[0_0_24px_rgba(249,115,22,0.5)]",
   },
   tiger: {
-    label: "Tiger",
-    shortLabel: "TGR",
-    assetSrc: null,
+  label: "Tiger",
+  shortLabel: "TGR",
+  assetSrc: "/assets/nagani/symbols/tiger.webp",
     placeholder: "bg-gradient-to-br from-orange-400 via-red-900 to-black",
     glow: "shadow-[0_0_20px_rgba(251,146,60,0.35)]",
   },
   koi: {
-    label: "Koi",
-    shortLabel: "KOI",
-    assetSrc: null,
+  label: "Koi",
+  shortLabel: "KOI",
+  assetSrc: "/assets/nagani/symbols/koi.webp",
     placeholder: "bg-gradient-to-br from-cyan-300 via-blue-900 to-black",
     glow: "shadow-[0_0_20px_rgba(34,211,238,0.34)]",
   },
   pattern: {
-    label: "Pattern",
-    shortLabel: "PAT",
-    assetSrc: null,
+  label: "Pattern",
+  shortLabel: "PAT",
+  assetSrc: "/assets/nagani/symbols/pattern.webp",
     placeholder: "bg-gradient-to-br from-zinc-500 via-zinc-900 to-black",
     glow: "shadow-[0_0_18px_rgba(255,255,255,0.14)]",
   },
   ten: {
-    label: "Ten",
-    shortLabel: "10",
-    assetSrc: null,
+  label: "Ten",
+  shortLabel: "10",
+  assetSrc: "/assets/nagani/symbols/ten.webp",
     placeholder: "bg-gradient-to-br from-red-500 via-red-950 to-black",
     glow: "shadow-[0_0_18px_rgba(239,68,68,0.3)]",
   },
   a: {
-    label: "Ace",
-    shortLabel: "A",
-    assetSrc: null,
+  label: "Ace",
+  shortLabel: "A",
+  assetSrc: "/assets/nagani/symbols/a.webp",
     placeholder: "bg-gradient-to-br from-pink-400 via-red-900 to-black",
     glow: "shadow-[0_0_18px_rgba(244,114,182,0.3)]",
   },
   k: {
-    label: "King",
-    shortLabel: "K",
-    assetSrc: null,
+  label: "King",
+  shortLabel: "K",
+  assetSrc: "/assets/nagani/symbols/k.webp",
     placeholder: "bg-gradient-to-br from-yellow-300 via-amber-900 to-black",
     glow: "shadow-[0_0_18px_rgba(250,204,21,0.34)]",
   },
   q: {
-    label: "Queen",
-    shortLabel: "Q",
-    assetSrc: null,
+  label: "Queen",
+  shortLabel: "Q",
+  assetSrc: "/assets/nagani/symbols/q.webp",
     placeholder: "bg-gradient-to-br from-emerald-300 via-green-900 to-black",
     glow: "shadow-[0_0_18px_rgba(52,211,153,0.3)]",
   },
   j: {
-    label: "Jack",
-    shortLabel: "J",
-    assetSrc: null,
+  label: "Jack",
+  shortLabel: "J",
+  assetSrc: "/assets/nagani/symbols/j.webp",
     placeholder: "bg-gradient-to-br from-cyan-300 via-sky-900 to-black",
     glow: "shadow-[0_0_18px_rgba(34,211,238,0.3)]",
   },
@@ -285,6 +285,30 @@ function buildReelTrack(
   return [...filler, ...finalColumn];
 }
 
+function SymbolAsset({
+  src,
+  label,
+}: {
+  src: string | null;
+  label: string;
+}) {
+  const [failed, setFailed] = useState(false);
+
+  if (!src || failed) {
+    return null;
+  }
+
+  return (
+    <img
+      src={src}
+      alt={label}
+      className="relative z-20 h-[82%] w-[82%] object-contain drop-shadow-[0_12px_18px_rgba(0,0,0,0.65)]"
+      draggable={false}
+      onError={() => setFailed(true)}
+    />
+  );
+}
+
 function SymbolTile({
   cell,
   isFinalPayline,
@@ -307,25 +331,20 @@ function SymbolTile({
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/72 to-transparent" />
       <div className="pointer-events-none absolute inset-0 rounded-[1rem] ring-1 ring-inset ring-white/[0.045]" />
 
-      {symbol.assetSrc ? (
-        <img
-          src={symbol.assetSrc}
-          alt={symbol.label}
-          className="relative z-10 h-[78%] w-[78%] object-contain drop-shadow-[0_12px_18px_rgba(0,0,0,0.65)]"
-          draggable={false}
-        />
-      ) : (
-        <div className="relative z-10 flex h-[74%] w-[74%] items-center justify-center rounded-[0.85rem] border border-white/15 bg-black/28 shadow-[inset_0_0_24px_rgba(0,0,0,0.42)]">
-          <div className="text-center">
-            <div className="font-mono text-[0.82rem] font-black uppercase tracking-[0.16em] text-white">
-              {symbol.shortLabel}
-            </div>
-            <div className="mt-1 font-mono text-[0.42rem] font-black uppercase tracking-[0.18em] text-white/48">
-              Asset Slot
-            </div>
-          </div>
-        </div>
-      )}
+<div className="relative z-10 flex h-[74%] w-[74%] items-center justify-center rounded-[0.85rem] border border-white/15 bg-black/28 shadow-[inset_0_0_24px_rgba(0,0,0,0.42)]">
+  <div className="absolute inset-0 flex items-center justify-center">
+    <div className="text-center">
+      <div className="font-mono text-[0.82rem] font-black uppercase tracking-[0.16em] text-white">
+        {symbol.shortLabel}
+      </div>
+      <div className="mt-1 font-mono text-[0.42rem] font-black uppercase tracking-[0.18em] text-white/48">
+        Asset Slot
+      </div>
+    </div>
+  </div>
+
+  <SymbolAsset src={symbol.assetSrc} label={symbol.label} />
+</div>
 
       {isFinalPayline && (
         <div className="pointer-events-none absolute inset-0 rounded-[1rem] bg-[#FFD700]/[0.07]" />

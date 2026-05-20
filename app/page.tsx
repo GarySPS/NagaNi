@@ -4,6 +4,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { getWallet, playSpin } from "./lib/actions";
+import { playNaganiSound } from "./lib/naganiSound";
 import { useRouter, useSearchParams } from "next/navigation";
 import LiveWinnerFeed from "./components/nagani/LiveWinnerFeed";
 import { supabase } from "./lib/supabase";
@@ -300,6 +301,122 @@ function RotatePhoneWelcome({
   );
 }
 
+function GameSessionAsset({
+  src,
+  alt,
+  className,
+}: {
+  src: string;
+  alt: string;
+  className: string;
+}) {
+  const [failed, setFailed] = useState(false);
+
+  if (failed) {
+    return null;
+  }
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className={className}
+      draggable={false}
+      onError={() => setFailed(true)}
+    />
+  );
+}
+
+function WinCelebrationOverlay({
+  active,
+  result,
+}: {
+  active: boolean;
+  result: SpinPayload | null;
+}) {
+  if (!active || !result?.isWin) {
+    return null;
+  }
+
+  const isBigWin = result.payout >= BET_AMOUNT * 50;
+  const title = isBigWin ? "BIG WIN" : "DRAGON WIN";
+  const subtitle = isBigWin
+    ? "Fire jackpot energy unlocked"
+    : "Winning line confirmed";
+
+  return (
+    <motion.div
+      className="pointer-events-none fixed inset-0 z-[75] flex items-center justify-center px-5 text-white"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.25, ease: "easeOut" }}
+    >
+      <div className="absolute inset-0 bg-black/38 backdrop-blur-[2px]" />
+
+      <GameSessionAsset
+        src="/assets/nagani/effects/fire-glow.webp"
+        alt="Nagani win glow"
+        className="absolute left-1/2 top-1/2 h-[34rem] w-[34rem] -translate-x-1/2 -translate-y-1/2 object-contain opacity-55"
+      />
+
+      <motion.div
+        className={`relative w-full max-w-sm overflow-hidden rounded-[2rem] border p-6 text-center shadow-[0_0_90px_rgba(250,204,21,0.24)] ${
+          isBigWin
+            ? "border-[#FFD700]/55 bg-gradient-to-b from-[#5a0909]/96 via-[#160202]/96 to-black"
+            : "border-[#FFD700]/35 bg-gradient-to-b from-[#2a0505]/96 via-[#0b0101]/96 to-black"
+        }`}
+        initial={{ y: 24, scale: 0.86, opacity: 0 }}
+        animate={{ y: 0, scale: 1, opacity: 1 }}
+        exit={{ y: 10, scale: 0.94, opacity: 0 }}
+        transition={{ type: "spring", stiffness: 210, damping: 18 }}
+      >
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(250,204,21,0.22),transparent_48%)]" />
+        <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-[#FFD700] to-transparent" />
+
+        <motion.div
+          className="relative mx-auto flex h-20 w-20 items-center justify-center rounded-[1.75rem] border border-[#FFD700]/35 bg-[#FFD700]/10 text-[#FFD700] shadow-[0_0_50px_rgba(250,204,21,0.28)]"
+          animate={{
+            scale: [1, 1.08, 1],
+            rotate: isBigWin ? [0, -3, 3, 0] : [0, 0],
+          }}
+          transition={{ duration: 0.75, repeat: 2 }}
+        >
+          <Flame className="h-10 w-10" />
+        </motion.div>
+
+        <div className="relative mt-5 font-mono text-[9px] font-black uppercase tracking-[0.32em] text-[#FFD700]/75">
+          {subtitle}
+        </div>
+
+        <motion.h2
+          className="relative mt-2 bg-gradient-to-r from-white via-[#FFD700] to-red-500 bg-clip-text text-5xl font-black tracking-tight text-transparent"
+          animate={{
+            textShadow: [
+              "0 0 12px rgba(250,204,21,0.25)",
+              "0 0 30px rgba(250,204,21,0.55)",
+              "0 0 12px rgba(250,204,21,0.25)",
+            ],
+          }}
+          transition={{ duration: 0.9, repeat: 2 }}
+        >
+          {title}
+        </motion.h2>
+
+        <div className="relative mt-5 rounded-[1.5rem] border border-[#FFD700]/25 bg-black/45 px-4 py-4">
+          <div className="font-mono text-[9px] font-black uppercase tracking-[0.22em] text-white/38">
+            Win Amount
+          </div>
+
+          <div className="mt-1 font-mono text-4xl font-black text-[#FFD700]">
+            {formatCredits(result.payout)}
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 function NaganiGame() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -327,6 +444,7 @@ const [rotateHintDismissedThisSession, setRotateHintDismissedThisSession] =
   const [lastResult, setLastResult] = useState<SpinPayload | null>(null);
   const [pendingResult, setPendingResult] = useState<SpinPayload | null>(null);
   const [showGoldRain, setShowGoldRain] = useState(false);
+  const [showWinCelebration, setShowWinCelebration] = useState(false);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -445,10 +563,17 @@ useEffect(() => {
     setLastResult(pendingResult);
     void syncWallet();
 
-    if (pendingResult.isWin) {
-      setShowGoldRain(true);
-      window.setTimeout(() => setShowGoldRain(false), 2400);
-    }
+if (pendingResult.isWin) {
+  const isBigWin = pendingResult.payout >= BET_AMOUNT * 50;
+
+  playNaganiSound(isBigWin ? "bigWin" : "win");
+
+  setShowGoldRain(true);
+  setShowWinCelebration(true);
+
+  window.setTimeout(() => setShowGoldRain(false), 2400);
+  window.setTimeout(() => setShowWinCelebration(false), 2800);
+}
   }, [stoppedReels, isSpinning, pendingResult, syncWallet]);
 
   async function handleSpin() {
@@ -463,8 +588,11 @@ useEffect(() => {
     }
 
     try {
-      setShowGoldRain(false);
-      setLastResult(null);
+  playNaganiSound("spin");
+
+setShowGoldRain(false);
+setShowWinCelebration(false);
+setLastResult(null);
       setPendingResult(null);
       setStoppedReels(0);
       setIsSpinning(true);
@@ -511,18 +639,21 @@ function handleCloseRotateHint(doNotShowAgain: boolean) {
   setShowRotateHint(false);
 }
 
-  function handlePrimaryAction() {
-    if (!authLoading && !walletLoading && credits < BET_AMOUNT && !isSpinning) {
-      router.push("/cashier");
-      return;
-    }
+function handlePrimaryAction() {
+  playNaganiSound("button");
 
-    void handleSpin();
+  if (!authLoading && !walletLoading && credits < BET_AMOUNT && !isSpinning) {
+    router.push("/cashier");
+    return;
   }
 
-  function handleReelStop() {
-    setStoppedReels((current) => current + 1);
-  }
+  void handleSpin();
+}
+
+function handleReelStop() {
+  playNaganiSound("reelStop");
+  setStoppedReels((current) => current + 1);
+}
 
   const minutes = Math.floor(vaultSeconds / 60);
   const seconds = vaultSeconds % 60;
@@ -564,8 +695,13 @@ function handleCloseRotateHint(doNotShowAgain: boolean) {
 
   return (
   <main className="relative min-h-dvh overflow-x-hidden bg-[#030000] text-white">
-      <GoldRain active={showGoldRain} />
-      <LiveWinnerFeed />
+<GoldRain active={showGoldRain} />
+
+<AnimatePresence>
+  <WinCelebrationOverlay active={showWinCelebration} result={lastResult} />
+</AnimatePresence>
+
+<LiveWinnerFeed />
 
       <AnimatePresence>
         {introVisible && <NaganiLaunchOverlay roomName={selectedRoom} />}
@@ -575,10 +711,18 @@ function handleCloseRotateHint(doNotShowAgain: boolean) {
   {showRotateHint && <RotatePhoneWelcome onClose={handleCloseRotateHint} />}
 </AnimatePresence>
 
-      <div className="pointer-events-none fixed inset-0">
-        <div
-          className={`absolute left-1/2 top-[-14rem] h-[36rem] w-[36rem] -translate-x-1/2 rounded-full ${roomSkin.ambientGlow} blur-[130px]`}
-        />
+<div className="pointer-events-none fixed inset-0">
+  <GameSessionAsset
+    src="/assets/nagani/backgrounds/game-session.webp"
+    alt="Nagani game session background"
+    className="absolute inset-0 h-full w-full object-cover opacity-35"
+  />
+
+  <div className="absolute inset-0 bg-[#030000]/55" />
+
+  <div
+    className={`absolute left-1/2 top-[-14rem] h-[36rem] w-[36rem] -translate-x-1/2 rounded-full ${roomSkin.ambientGlow} blur-[130px]`}
+  />
         <div className="absolute bottom-[-16rem] right-[-12rem] h-[34rem] w-[34rem] rounded-full bg-[#FFD700]/10 blur-[120px]" />
         <div className="absolute left-[-16rem] top-1/3 h-[30rem] w-[30rem] rounded-full bg-red-950/30 blur-[120px]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_18%,rgba(250,204,21,0.10),transparent_30%),linear-gradient(180deg,rgba(0,0,0,0.2),rgba(0,0,0,0.82))]" />
@@ -624,7 +768,7 @@ function handleCloseRotateHint(doNotShowAgain: boolean) {
             <div className="pointer-events-none absolute inset-0 rounded-[2.25rem] bg-[radial-gradient(circle_at_50%_0%,rgba(250,204,21,0.18),transparent_34%)]" />
             <div className="pointer-events-none absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-[#FFD700]/90 to-transparent" />
 
-            <div className="relative mb-3 flex items-center justify-between gap-3">
+            <div className="relative z-10 mb-3 flex items-center justify-between gap-3">
               <div>
                 <div
                   className={`inline-flex rounded-full border px-3 py-1 font-mono text-[8px] font-black uppercase tracking-[0.18em] ${roomSkin.badge}`}
@@ -656,15 +800,17 @@ function handleCloseRotateHint(doNotShowAgain: boolean) {
               </button>
             </div>
 
-            <DragonSlotBoard
-              finalReels={finalReels}
-              isSpinning={isSpinning}
-              isNearMiss={pendingResult?.isNearMiss}
-              spinKey={spinKey}
-              onStop={handleReelStop}
-            />
+<div className="relative z-10">
+  <DragonSlotBoard
+    finalReels={finalReels}
+    isSpinning={isSpinning}
+    isNearMiss={pendingResult?.isNearMiss}
+    spinKey={spinKey}
+    onStop={handleReelStop}
+  />
+</div>
 
-            <div className="relative mt-3 rounded-[1.75rem] border border-[#FFD700]/15 bg-black/55 p-3 shadow-[inset_0_0_34px_rgba(0,0,0,0.75)]">
+            <div className="relative z-10 mt-3 rounded-[1.75rem] border border-[#FFD700]/15 bg-black/55 p-3 shadow-[inset_0_0_34px_rgba(0,0,0,0.75)]">
               <div className="grid grid-cols-3 gap-2">
                 <div className="rounded-[1.15rem] border border-white/10 bg-white/[0.045] px-3 py-2">
                   <div className="flex items-center gap-1.5 font-mono text-[7px] font-black uppercase tracking-[0.16em] text-white/35">
@@ -744,12 +890,18 @@ function handleCloseRotateHint(doNotShowAgain: boolean) {
                   !primaryEnabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"
                 }`}
               >
-                <span className="absolute inset-0 translate-x-[-120%] bg-gradient-to-r from-transparent via-white/55 to-transparent transition-transform duration-700 group-hover:translate-x-[120%]" />
+<GameSessionAsset
+  src="/assets/nagani/ui/spin-button.webp"
+  alt="Nagani spin button"
+  className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-45"
+/>
 
-                <span className="relative flex items-center justify-center gap-3">
-                  {spinButtonText}
-                  <Trophy className="h-5 w-5" />
-                </span>
+<span className="absolute inset-0 translate-x-[-120%] bg-gradient-to-r from-transparent via-white/55 to-transparent transition-transform duration-700 group-hover:translate-x-[120%]" />
+
+<span className="relative z-10 flex items-center justify-center gap-3">
+  {spinButtonText}
+  <Trophy className="h-5 w-5" />
+</span>
               </motion.button>
             </div>
           </section>
