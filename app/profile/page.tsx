@@ -405,7 +405,7 @@ export default function ProfilePage() {
               onClick={() =>
                 showToast({
                   title: "Membership",
-                  message: "VIP tier center will be connected later.",
+                  message: "VIP member rewards are coming soon.",
                 })
               }
               className="flex w-full items-center justify-between rounded-[1.5rem] border border-white/10 bg-white/[0.045] p-4 text-left active:scale-[0.99]"

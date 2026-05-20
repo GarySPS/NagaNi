@@ -563,7 +563,7 @@ function handleCloseRotateHint(doNotShowAgain: boolean) {
           : "Ready";
 
   return (
-    <main className="relative min-h-dvh overflow-hidden bg-[#030000] text-white">
+  <main className="relative min-h-dvh overflow-x-hidden bg-[#030000] text-white">
       <GoldRain active={showGoldRain} />
       <LiveWinnerFeed />
 

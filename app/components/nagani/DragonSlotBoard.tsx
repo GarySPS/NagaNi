@@ -1,4 +1,4 @@
-//app>components>nagani>DragonSLotBoard.tsx
+//app>components>nagani>DragonSlotBoard.tsx
 
 "use client";
 
