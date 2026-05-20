@@ -46,6 +46,32 @@ function formatMoney(value: number | string | null | undefined) {
   })}`;
 }
 
+function ProfileAsset({
+  src,
+  alt,
+  className,
+}: {
+  src: string;
+  alt: string;
+  className: string;
+}) {
+  const [failed, setFailed] = useState(false);
+
+  if (failed) {
+    return null;
+  }
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className={className}
+      draggable={false}
+      onError={() => setFailed(true)}
+    />
+  );
+}
+
 export default function ProfilePage() {
   const router = useRouter();
   const toastTimer = useRef<number | null>(null);
@@ -232,8 +258,16 @@ export default function ProfilePage() {
       </AnimatePresence>
 
 <div className="pointer-events-none fixed inset-0">
+  <ProfileAsset
+    src="/assets/nagani/backgrounds/profile.webp"
+    alt="Nagani profile background"
+    className="absolute inset-0 h-full w-full object-cover opacity-30"
+  />
+
+  <div className="absolute inset-0 bg-[#050101]/70" />
   <div className="absolute left-1/2 top-[-10rem] h-[28rem] w-[28rem] -translate-x-1/2 rounded-full bg-nagani-dragon-red/45 blur-[120px]" />
   <div className="absolute bottom-[-14rem] right-[-10rem] h-[28rem] w-[28rem] rounded-full bg-nagani-gold/10 blur-[120px]" />
+  <div className="absolute left-[-10rem] top-[35%] h-[24rem] w-[24rem] rounded-full bg-red-600/12 blur-[120px]" />
   <div className="nagani-grid-overlay absolute inset-0 opacity-40" />
 </div>
 
@@ -277,50 +311,99 @@ export default function ProfilePage() {
           )}
         </header>
 
-        <section className="mt-4 overflow-hidden rounded-[2rem] border border-red-300/25 bg-gradient-to-br from-red-500/28 via-[#FFD700]/10 to-black/70 p-4 shadow-[0_0_60px_rgba(239,68,68,0.16)]">
-          <div className="flex items-start gap-4">
-            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-[2rem] border border-[#FFD700]/30 bg-[#FFD700]/10 text-[#FFD700] shadow-[0_0_30px_rgba(255,215,0,0.14)]">
-              <Flame className="h-10 w-10" />
-            </div>
+<section className="relative mt-4 overflow-hidden rounded-[2.15rem] border border-[#FFD700]/25 bg-gradient-to-br from-red-500/28 via-[#FFD700]/10 to-black/75 p-4 shadow-[0_0_70px_rgba(239,68,68,0.18)]">
+  <ProfileAsset
+    src="/assets/nagani/ui/member-card.webp"
+    alt="Nagani member card"
+    className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-22"
+  />
 
-            <div className="min-w-0 flex-1">
-              <div className="inline-flex rounded-full border border-[#FFD700]/25 bg-[#FFD700]/10 px-3 py-1 font-mono text-[8px] font-black uppercase tracking-[0.2em] text-[#FFD700]">
-                Red Dragon Member
-              </div>
+  <ProfileAsset
+    src="/assets/nagani/effects/dragon-glow.webp"
+    alt="Nagani dragon glow"
+    className="pointer-events-none absolute -right-20 -top-16 h-72 w-72 object-contain opacity-35"
+  />
 
-              <h2 className="mt-3 truncate text-3xl font-black leading-none tracking-tight text-white">
-                {userLabel}
-              </h2>
+  <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-black/5 via-black/35 to-black/80" />
+  <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-[#FFD700]/80 to-transparent" />
 
-              <div className="mt-2 flex items-center gap-2 text-xs text-white/45">
-                <Mail className="h-3.5 w-3.5 shrink-0 text-[#FFD700]/70" />
-                <span className="truncate">{userEmail || "No email"}</span>
-              </div>
-            </div>
+  <div className="relative z-10">
+    <div className="flex items-start justify-between gap-4">
+      <div className="min-w-0">
+        <div className="inline-flex rounded-full border border-[#FFD700]/30 bg-[#FFD700]/10 px-3 py-1 font-mono text-[8px] font-black uppercase tracking-[0.22em] text-[#FFD700]">
+          Red Dragon Member Pass
+        </div>
+
+        <h2 className="mt-3 truncate text-3xl font-black leading-none tracking-tight text-white">
+          {userLabel}
+        </h2>
+
+        <div className="mt-2 flex items-center gap-2 text-xs text-white/45">
+          <Mail className="h-3.5 w-3.5 shrink-0 text-[#FFD700]/70" />
+          <span className="truncate">{userEmail || "No email"}</span>
+        </div>
+      </div>
+
+      <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-[2rem] border border-[#FFD700]/30 bg-[#FFD700]/10 text-[#FFD700] shadow-[0_0_30px_rgba(255,215,0,0.14)]">
+        <ProfileAsset
+          src="/assets/nagani/ui/vip-badge.webp"
+          alt="Nagani VIP badge"
+          className="absolute inset-0 h-full w-full object-cover opacity-70"
+        />
+
+        <Flame className="relative z-10 h-10 w-10" />
+      </div>
+    </div>
+
+    <div className="mt-5 rounded-[1.6rem] border border-[#FFD700]/20 bg-black/35 p-4">
+      <div className="flex items-end justify-between gap-3">
+        <div>
+          <div className="font-mono text-[8px] font-black uppercase tracking-[0.22em] text-[#FFD700]/60">
+            Total Credits
           </div>
 
-          <div className="mt-5 grid grid-cols-2 gap-3">
-            <div className="rounded-2xl border border-[#FFD700]/20 bg-black/30 p-3">
-              <div className="font-mono text-[9px] font-black uppercase tracking-[0.18em] text-[#FFD700]/60">
-                Total Balance
-              </div>
-
-              <div className="mt-1 font-mono text-xl font-black text-[#FFD700]">
-                {walletLoading ? "..." : formatMoney(totalCredits)}
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-red-300/20 bg-red-500/10 p-3">
-              <div className="font-mono text-[9px] font-black uppercase tracking-[0.18em] text-red-100/60">
-                Status
-              </div>
-
-              <div className="mt-1 font-mono text-xl font-black text-red-100">
-                Active
-              </div>
-            </div>
+          <div className="mt-1 font-mono text-3xl font-black leading-none text-[#FFD700]">
+            {walletLoading ? "..." : formatMoney(totalCredits)}
           </div>
-        </section>
+        </div>
+
+        <div className="rounded-full border border-emerald-300/20 bg-emerald-400/10 px-3 py-1 font-mono text-[8px] font-black uppercase tracking-[0.16em] text-emerald-200">
+          Active
+        </div>
+      </div>
+
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        <div className="rounded-2xl border border-white/10 bg-white/[0.045] px-3 py-2">
+          <div className="font-mono text-[8px] font-black uppercase tracking-[0.18em] text-white/35">
+            Member ID
+          </div>
+
+          <div className="mt-1 truncate font-mono text-xs font-black text-white/70">
+            {userId ? userId.slice(0, 8).toUpperCase() : "SYNCING"}
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-[#FFD700]/15 bg-[#FFD700]/[0.055] px-3 py-2">
+          <div className="font-mono text-[8px] font-black uppercase tracking-[0.18em] text-[#FFD700]/55">
+            Tier
+          </div>
+
+          <div className="mt-1 truncate font-mono text-xs font-black text-[#FFD700]">
+            Dragon Member
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div className="mt-3 flex items-center gap-2 rounded-[1.25rem] border border-white/10 bg-white/[0.04] px-3 py-2">
+      <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-200" />
+
+      <p className="text-xs font-semibold leading-5 text-white/45">
+        Secure session active. Wallet activity is reviewed before settlement.
+      </p>
+    </div>
+  </div>
+</section>
 
         <section className="mt-4 grid grid-cols-2 gap-3">
           <div className="rounded-[1.5rem] border border-[#FFD700]/20 bg-[#FFD700]/[0.07] p-4 shadow-[0_0_28px_rgba(255,215,0,0.08)]">
