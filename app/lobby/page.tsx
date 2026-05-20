@@ -602,7 +602,7 @@ export default function LobbyPage() {
   <div className="nagani-grid-overlay absolute inset-0 opacity-40" />
 </div>
 
-      <section className="relative mx-auto min-h-dvh w-full max-w-md px-4 pb-28 pt-4">
+   <section className="relative mx-auto min-h-dvh w-full max-w-md px-4 pb-36 pt-4">
 <header className="sticky top-0 z-30 -mx-4 border-b border-nagani-gold/10 bg-[#120304]/90 px-4 pb-3 pt-3 shadow-[0_18px_60px_rgba(0,0,0,0.58)] backdrop-blur-2xl">
   <div className="flex items-center justify-between gap-3">
     <button

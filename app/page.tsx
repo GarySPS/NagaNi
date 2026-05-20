@@ -366,7 +366,7 @@ function handleReelStop() {
         <div className="nagani-grid-overlay absolute inset-0 opacity-25" />
       </div>
 
-      <section className="relative z-10 mx-auto flex min-h-dvh w-full max-w-[1180px] flex-col px-3 py-3 sm:px-5">
+     <section className="relative z-10 mx-auto flex min-h-dvh w-full max-w-[1180px] flex-col px-3 pb-8 pt-3 sm:px-5 lg:pb-3">
         <header className="flex items-center justify-between gap-3 rounded-[1.5rem] border border-[#FFD700]/15 bg-black/35 px-3 py-2 shadow-[0_18px_70px_rgba(0,0,0,0.45)] backdrop-blur-2xl">
           <button
             type="button"
@@ -523,7 +523,7 @@ function handleReelStop() {
                   duration: 1.8,
                   repeat: isSpinning ? 0 : Infinity,
                 }}
-                className={`nagani-gold-button group relative mt-3 w-full overflow-hidden rounded-[1.65rem] px-6 py-4 text-center font-black uppercase tracking-[0.34em] transition ${
+                className={`nagani-gold-button group relative mt-3 w-full touch-manipulation overflow-hidden rounded-[1.65rem] px-6 py-4 text-center font-black uppercase tracking-[0.34em] transition ${
                   !primaryEnabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"
                 }`}
               >

@@ -1,6 +1,7 @@
-//app>layout.tsx
+// app/layout.tsx
 
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import type { ReactNode } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -15,21 +16,63 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Nagani | နဂါးနီ",
-  description: "Premium Red Dragon Casino Experience",
+  applicationName: "Nagani",
+  title: {
+    default: "Nagani | နဂါးနီ",
+    template: "%s | Nagani",
+  },
+  description: "A premium Myanmar red-dragon casino player experience.",
+  keywords: [
+    "Nagani",
+    "နဂါးနီ",
+    "Red Dragon Casino",
+    "Myanmar Casino",
+    "Slot Game",
+  ],
+  authors: [{ name: "Nagani" }],
+  creator: "Nagani",
+  publisher: "Nagani",
+  category: "game",
+  openGraph: {
+    title: "Nagani | နဂါးနီ",
+    description: "A premium Myanmar red-dragon casino player experience.",
+    siteName: "Nagani",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Nagani | နဂါးနီ",
+    description: "A premium Myanmar red-dragon casino player experience.",
+  },
+  formatDetection: {
+    telephone: false,
+    email: false,
+    address: false,
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: "#070202",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: ReactNode;
 }>) {
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full bg-[#070202] text-[#FFF7D6]">
+        {children}
+      </body>
     </html>
   );
 }
